@@ -46,7 +46,7 @@ Must be `auto-detect` or one of the codes/names (not case sensitive) contained i
 Type: `string` Default: `en`
 
 The language in which the text should be translated.
-Must be one of the codes/names (case sensitive!) contained in [lang.js](https://github.com/plainheart/bing-translate-api/blob/master/src/lang.js).
+Must be one of the codes/names (not case sensitive) contained in [lang.js](https://github.com/plainheart/bing-translate-api/blob/master/src/lang.js).
 
 ##### userAgent
 Type: `string`

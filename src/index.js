@@ -71,8 +71,11 @@ async function translate(text, from, to, userAgent) {
   from = from || 'auto-detect'
   to = to || 'en'
 
-  if (!lang.isSupported(from) || !lang.isSupported(to)) {
-    throw new Error(`The language '${lang}' is not supported!`)
+  const fromSupported = lang.isSupported(from)
+  const toSupported = lang.isSupported(to)
+
+  if (!fromSupported || !toSupported) {
+    throw new Error(`The language '${!fromSupported ? from : !toSupported ? to : ''}' is not supported!`)
   }
 
   from = lang.getLangCode(from)

@@ -111,7 +111,7 @@ function getLangCode(lang) {
 
   for (let i = 0, len = supportedLangCodes.length, code; i < len; i++) {
     code = supportedLangCodes[i]
-    if (LANGS[code].toLowerCase() === lang) {
+    if (code.toLowerCase() === lang || LANGS[code].toLowerCase() === lang) {
       return code
     }
   }
