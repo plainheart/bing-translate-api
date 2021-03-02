@@ -1,7 +1,7 @@
 {
   "name": "bing-translate-api",
-  "version": "0.0.1",
-  "description": "A simple and free API for Bing Translator",
+  "version": "1.0.0",
+  "description": "A simple and free API for Bing Translator for Node.js",
   "main": "src/index.js",
   "scripts": {
     "test": "node test/index.js && node test/lang.js"
@@ -11,10 +11,20 @@
     "translator",
     "api",
     "javascript",
-    "free"
+    "free",
+    "node",
+    "translate"
   ],
   "author": "plainheart",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/plainheart/bing-translate-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/plainheart/bing-translate-api/issues"
+  },
+  "homepage": "https://github.com/plainheart/bing-translate-api#readme",
   "dependencies": {
     "got": "^11.8.2",
     "qs": "^6.9.6"
