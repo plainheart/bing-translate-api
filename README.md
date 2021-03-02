@@ -20,15 +20,29 @@ From auto-detected language to English:
 const { translate } = require('bing-translate-api');
 
 translate('你好', null, 'en').then(res => {
-  console.log(res[0].translations[0].text);
+  console.log(res.translation);
 }).catch(err => {
   console.error(err);
 });
 ```
 
+Translation result
+
+```json
+{
+  "text": "你好",
+  "userLang": "auto-detect",
+  "translation": "Hello",
+  "language": {
+    "to": "en",
+    "from": "zh-Hans"
+  }
+}
+```
+
 ## API
 
-### translate(text, [from], [to], [userAgent])
+### translate(text, [from], [to], [raw], [tld], [userAgent])
 
 #### text
 
