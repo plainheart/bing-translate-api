@@ -3,7 +3,7 @@ const qs = require('qs')
 
 const lang = require('./lang')
 
-const TRANSLATE_API_ROOT = 'https://bing.com'
+const TRANSLATE_API_ROOT = 'https://{tld}bing.com'
 const TRANSLATE_WEBSITE = TRANSLATE_API_ROOT + '/translator'
 const TRANSLATE_API = TRANSLATE_API_ROOT + '/ttranslatev3?isVertical=1'
 
@@ -12,15 +12,23 @@ const CONTENT_TYPE = 'application/x-www-form-urlencoded'
 
 let globalConfig
 
+function replaceTld(url, tld) {
+  if (tld && (tld !== 'www' && tld !== 'cn')) {
+    console.warn(`the tld '${tld}' may not be valid.`)
+  }
+  return url.replace('{tld}', tld ? tld + '.' : '')
+}
+
 /**
  * fetch global config including `IG` and `IID`
+ * @param {string} tld www | cn | ''
  * @param {string} userAgent
  */
-async function fetchGlobalConfig(userAgent) {
+async function fetchGlobalConfig(tld, userAgent) {
   let IG
   let IID
   try {
-    const { body } = await got(TRANSLATE_WEBSITE, {
+    const { body } = await got(replaceTld(TRANSLATE_WEBSITE, tld), {
       headers: {
         'user-agent': userAgent || USER_AGENT
       }
@@ -37,8 +45,8 @@ async function fetchGlobalConfig(userAgent) {
   }
 }
 
-function makeRequestURL(IG, IID, count) {
-  return TRANSLATE_API
+function makeRequestURL(IG, IID, count, tld) {
+  return replaceTld(TRANSLATE_API, tld)
     + (IG && IG.length ? '&IG=' + IG : '')
     + (IID && IID.length ? '&IID=' + IID + '.' + count : '')
 }
@@ -55,17 +63,19 @@ function makeRequestBody(text, fromLang, toLang) {
  * To translate
  *
  * @param {string} text content to be translated
- * @param {string} from source language code. `auto-detect` by default.
- * @param {string} to target language code. `en` by default.
- * @param {string} userAgent the expected user agent header
+ * @param {string} from <optional> source language code. `auto-detect` by default.
+ * @param {string} to <optional> target language code. `en` by default.
+ * @param {boolean} raw <optional> the result contains raw response if true
+ * @param {string} tld <optional> www | cn | ''
+ * @param {string} userAgent <optional> the expected user agent header
  */
-async function translate(text, from, to, userAgent) {
+async function translate(text, from, to, raw, tld, userAgent) {
   if (!text || !(text = text.trim())) {
     return
   }
 
   if (!globalConfig) {
-    await fetchGlobalConfig(userAgent)
+    await fetchGlobalConfig(tld, userAgent)
   }
 
   from = from || 'auto-detect'
@@ -81,7 +91,7 @@ async function translate(text, from, to, userAgent) {
   from = lang.getLangCode(from)
   to = lang.getLangCode(to)
 
-  const requestURL = makeRequestURL(globalConfig.IG, globalConfig.IID, ++globalConfig.count)
+  const requestURL = makeRequestURL(globalConfig.IG, globalConfig.IID, ++globalConfig.count, tld)
   const requestBody = makeRequestBody(text, from, to === 'auto-detect' ? 'en' : to)
 
   const { body } = await got.post(requestURL, {
@@ -94,7 +104,23 @@ async function translate(text, from, to, userAgent) {
     responseType: 'json'
   })
 
-  return body
+  const translation = body[0].translations[0]
+
+  const res = {
+    text,
+    userLang: from,
+    translation: translation.text,
+    language: {
+      to: translation.to,
+      from: body[0].detectedLanguage.language
+    }
+  }
+
+  if (raw) {
+    res.raw = body
+  }
+
+  return res
 }
 
 module.exports = {

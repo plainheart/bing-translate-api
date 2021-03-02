@@ -48,6 +48,16 @@ Type: `string` Default: `en`
 The language in which the text should be translated.
 Must be one of the codes/names (not case sensitive) contained in [lang.js](https://github.com/plainheart/bing-translate-api/blob/master/src/lang.js).
 
+##### raw
+Type: `boolean` Default: `false`
+
+Whether the translation result contains raw response from Bing API.
+
+##### tld
+Type: `string` Default: `''`
+
+Can be `'www'` | `''cn'` | `''`
+
 ##### userAgent
 Type: `string`
 
