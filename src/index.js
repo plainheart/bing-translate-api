@@ -75,8 +75,11 @@ async function translate(text, from, to, userAgent) {
     throw new Error(`The language '${lang}' is not supported!`)
   }
 
+  from = lang.getLangCode(from)
+  to = lang.getLangCode(to)
+
   const requestURL = makeRequestURL(globalConfig.IG, globalConfig.IID, ++globalConfig.count)
-  const requestBody = makeRequestBody(text, lang.getLangCode(from), lang.getLangCode(to))
+  const requestBody = makeRequestBody(text, from, to === 'auto-detect' ? 'en' : to)
 
   const { body } = await got.post(requestURL, {
     headers: {
