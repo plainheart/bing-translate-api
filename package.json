@@ -1,0 +1,22 @@
+{
+  "name": "bing-translate-api",
+  "version": "0.0.1",
+  "description": "A simple and free API for Bing Translator",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node test/index.js && node test/lang.js"
+  },
+  "keywords": [
+    "bing",
+    "translator",
+    "api",
+    "javascript",
+    "free"
+  ],
+  "author": "plainheart",
+  "license": "MIT",
+  "dependencies": {
+    "got": "^11.8.2",
+    "qs": "^6.9.6"
+  }
+}
