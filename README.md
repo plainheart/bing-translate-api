@@ -37,7 +37,7 @@ Type: `string`
 The text to be translated.
 
 ##### from
-Type: `string` Default: `en`
+Type: `string` Default: `auto-detect`
 
 The language code of source text.
 Must be `auto-detect` or one of the codes/names (not case sensitive) contained in [lang.js](https://github.com/plainheart/bing-translate-api/blob/master/src/lang.js)
