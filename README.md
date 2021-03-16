@@ -28,7 +28,7 @@ translate('你好', null, 'en', true).then(res => {
 
 Translation result
 
-```json
+```js
 {
   "text": "你好",
   "userLang": "auto-detect",
