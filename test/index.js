@@ -12,3 +12,8 @@ translate('Hello', null, 'zh-Hans').then(printRes)
 
 // auto-detect(Korean) to zh-Hant
 translate('안녕하십니까', null, 'zh-Hant').then(printRes)
+
+// auto correct gradent to gradient
+translate('gradent', null, 'en', true).then(res => {
+  console.log(res.text, '----->', res.correctedText)
+})
