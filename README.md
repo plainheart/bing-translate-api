@@ -19,7 +19,7 @@ From auto-detected language to English:
 ```js
 const { translate } = require('bing-translate-api');
 
-translate('你好', null, 'en').then(res => {
+translate('你好', null, 'en', true).then(res => {
   console.log(res.translation);
 }).catch(err => {
   console.error(err);
@@ -33,16 +33,21 @@ Translation result
   "text": "你好",
   "userLang": "auto-detect",
   "translation": "Hello",
+  // `correctedText` is returned only when `corrent` is set as `true`
+  // supported since v1.1.0
+  "correctedText": "",
   "language": {
     "to": "en",
-    "from": "zh-Hans"
+    "from": "zh-Hans",
+    // supported since v1.1.0
+    "score": 1
   }
 }
 ```
 
 ## API
 
-### translate(text, [from], [to], [raw], [tld], [userAgent])
+### translate(text, [from], [to], [correct], [raw], [tld], [userAgent])
 
 #### text
 
@@ -61,6 +66,11 @@ Type: `string` Default: `en`
 
 The language in which the text should be translated.
 **MUST** be one of the codes/names (not case sensitive) contained in [lang.js](https://github.com/plainheart/bing-translate-api/blob/master/src/lang.js).
+
+##### correct
+Type: `boolean` Default: `false` Since: `v1.1.0`
+
+Whether to correct the input text.
 
 ##### raw
 Type: `boolean` Default: `false`
