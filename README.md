@@ -72,6 +72,10 @@ Type: `boolean` Default: `false` Since: `v1.1.0`
 
 Whether to correct the input text.
 
+Note that:
+1) There is currently a limit of **50 characters** for correction service.
+2) **Only** [the languages in the list](https://github.com/plainheart/bing-translate-api/blob/master/src/lang.js#L99-L120) are supported to be corrected.
+
 ##### raw
 Type: `boolean` Default: `false`
 
