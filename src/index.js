@@ -132,7 +132,7 @@ async function translate(text, from, to, correct, raw, tld, userAgent) {
     const correctLang = detectedLang.language
     const matcher = text.match(/"/g)
     const len = text.length + (matcher && matcher.length || 0)
-    // currently there is a limit of 50 chars for correction service
+    // currently, there is a limit of 50 characters for correction service
     // and only parts of languages are supported
     // otherwise, it will return status code 400
     if (len <= MAX_CORRECT_TEXT_LEN && lang.canCorrect(correctLang)) {
@@ -148,7 +148,7 @@ async function translate(text, from, to, correct, raw, tld, userAgent) {
       res.correctedText = body && body.correctedText
     }
     else {
-      console.warn(`The detected language '${correctLang}' is not supported to correct or the length of text is more than ${MAX_CORRECT_TEXT_LEN}.`)
+      console.warn(`The detected language '${correctLang}' is not supported to be corrected or the length of text is more than ${MAX_CORRECT_TEXT_LEN}.`)
     }
   }
 
