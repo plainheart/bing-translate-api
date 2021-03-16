@@ -96,6 +96,29 @@ const LANGS = {
   'zh-Hant': 'Chinese Traditional'
 }
 
+const LANGS_CAN_CORRECT = [
+  'da',
+  'en',
+  'nl',
+  'fi',
+  'fr',
+  'fr-CA',
+  'de',
+  'it',
+  'ja',
+  'ko',
+  'no',
+  'pl',
+  'pt',
+  'pt-PT',
+  'ru',
+  'es',
+  'sv',
+  'tr',
+  'zh-Hant',
+  'zh-Hans'
+]
+
 function getLangCode(lang) {
   if (!lang) {
     return
@@ -121,8 +144,14 @@ function isSupported(lang) {
   return !!getLangCode(lang)
 }
 
+function canCorrect(lang) {
+  const langCode = getLangCode(lang)
+  return langCode && LANGS_CAN_CORRECT.indexOf(langCode) > -1
+}
+
 module.exports = {
   LANGS,
   getLangCode,
-  isSupported
+  isSupported,
+  canCorrect
 }

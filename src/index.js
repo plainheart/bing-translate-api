@@ -11,6 +11,9 @@ const TRANSLATE_SPELL_CHECK_API = TRANSLATE_API_ROOT + '/tspellcheckv3?isVertica
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36'
 const CONTENT_TYPE = 'application/x-www-form-urlencoded'
 
+// PENDING
+const MAX_CORRECT_TEXT_LEN = 50
+
 let globalConfig
 
 function replaceTld(url, tld) {
@@ -126,16 +129,27 @@ async function translate(text, from, to, correct, raw, tld, userAgent) {
   }
 
   if (correct) {
-    const requestURL = makeRequestURL(true, globalConfig.IG, globalConfig.IID, ++globalConfig.count, tld)
-    const requestBody = makeRequestBody(true, text, detectedLang.language)
+    const correctLang = detectedLang.language
+    const matcher = text.match(/"/g)
+    const len = text.length + (matcher && matcher.length || 0)
+    // currently there is a limit of 50 chars for correction service
+    // and only parts of languages are supported
+    // otherwise, it will return status code 400
+    if (len <= MAX_CORRECT_TEXT_LEN && lang.canCorrect(correctLang)) {
+      const requestURL = makeRequestURL(true, globalConfig.IG, globalConfig.IID, ++globalConfig.count, tld)
+      const requestBody = makeRequestBody(true, text, correctLang)
 
-    const { body } = await got.post(requestURL, {
-      headers: requestHeaders,
-      body: requestBody,
-      responseType: 'json'
-    })
+      const { body } = await got.post(requestURL, {
+        headers: requestHeaders,
+        body: requestBody,
+        responseType: 'json'
+      })
 
-    res.correctedText = body && body.correctedText
+      res.correctedText = body && body.correctedText
+    }
+    else {
+      console.warn(`The detected language '${correctLang}' is not supported to correct or the length of text is more than ${MAX_CORRECT_TEXT_LEN}.`)
+    }
   }
 
   if (raw) {
