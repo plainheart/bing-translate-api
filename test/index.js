@@ -10,26 +10,42 @@ function printCorrectRes(res) {
   console.log()
 }
 
+function onErr(e) {
+  console.error(e)
+  process.exit(1)
+}
+
 // default: auto-detect(zh-Hans) -> en
-translate('你好').then(printRes)
+translate('你好')
+.then(printRes)
+.catch(onErr)
 
 // auto-detect(English) to zh-Hans
-translate('Hello', null, 'zh-Hans').then(printRes)
+translate('Hello', null, 'zh-Hans')
+.then(printRes)
+.catch(onErr)
 
 // auto-detect(Korean) to zh-Hant
-translate('안녕하십니까', null, 'zh-Hant').then(printRes)
+translate('안녕하십니까', null, 'zh-Hant')
+.then(printRes)
+.catch(onErr)
 
 // correct `gradent`` to `gradient`
-translate('gradent', null, 'en', true).then(printCorrectRes)
+translate('gradent', null, 'en', true)
+.then(printCorrectRes)
+.catch(onErr)
 
 // correct short text to `this text is very long`
 translate('this text is very lang', null, 'en', true)
 .then(printCorrectRes)
+.catch(onErr)
 
 // correct short text -> return `undefined` for the language is not supported
 translate('Bore da', null, 'en', true)
 .then(printCorrectRes)
+.catch(onErr)
 
 // correct long text -> return `undefined` for exceeding max length
 translate('this text is very long this text is very long this text is very long this text is very long this text is very long this text is very long ', null, 'en', true)
 .then(printCorrectRes)
+.catch(onErr)
