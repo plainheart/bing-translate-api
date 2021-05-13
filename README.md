@@ -33,7 +33,7 @@ Translation result
   "text": "你好",
   "userLang": "auto-detect",
   "translation": "Hello",
-  // `correctedText` is returned only when `corrent` is set as `true`
+  // `correctedText` is returned only when `correct` is set as `true`
   // supported since v1.1.0
   "correctedText": "",
   "language": {
