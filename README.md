@@ -1,6 +1,6 @@
 # bing-translate-api
 [![NPM version](https://img.shields.io/npm/v/bing-translate-api.svg?style=flat)](https://www.npmjs.org/package/bing-translate-api)
-[![Build Status](https://travis-ci.org/plainheart/bing-translate-api.svg?branch=master)](https://travis-ci.org/plainheart/bing-translate-api)
+[![Auto Test](https://github.com/plainheart/bing-translate-api/actions/workflows/autotest.yml/badge.svg)](https://github.com/plainheart/bing-translate-api/actions/workflows/autotest.yml)
 [![NPM Downloads](https://img.shields.io/npm/dm/bing-translate-api.svg)](https://npmcharts.com/compare/bing-translate-api?minimal=true)
 [![License](https://img.shields.io/npm/l/bing-translate-api.svg)](https://www.npmjs.com/package/bing-translate-api)
 
