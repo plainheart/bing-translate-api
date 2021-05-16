@@ -15,6 +15,7 @@ const CONTENT_TYPE = 'application/x-www-form-urlencoded'
 const MAX_CORRECT_TEXT_LEN = 50
 
 let globalConfig
+let globalConfigPromise
 
 function replaceTld(url, tld) {
   if (tld && (tld !== 'www' && tld !== 'cn')) {
@@ -41,6 +42,7 @@ async function fetchGlobalConfig(tld, userAgent) {
     IID = body.match(/data-iid="([^"]+)"/)[1]
   } catch (e) {
     console.error('failed to fetch IG and IID', e)
+    throw e
   }
   return globalConfig = {
     IG,
@@ -82,9 +84,11 @@ async function translate(text, from, to, correct, raw, tld, userAgent) {
     return
   }
 
-  if (!globalConfig) {
-    await fetchGlobalConfig(tld, userAgent)
+  if (!globalConfigPromise) {
+    globalConfigPromise = fetchGlobalConfig(tld, userAgent)
   }
+
+  await globalConfigPromise
 
   from = from || 'auto-detect'
   to = to || 'en'
