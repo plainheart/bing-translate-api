@@ -109,7 +109,7 @@ async function translate(text, from, to, correct, raw, tld, userAgent) {
   const requestHeaders = {
     'content-type': CONTENT_TYPE,
     'user-agent': userAgent || USER_AGENT,
-    referer: TRANSLATE_WEBSITE,
+    referer: replaceTld(TRANSLATE_WEBSITE, tld)
   }
 
   const resp = await got.post(requestURL, {
@@ -117,6 +117,14 @@ async function translate(text, from, to, correct, raw, tld, userAgent) {
     body: requestBody,
     responseType: 'json'
   })
+
+  if (resp.ShowCaptcha) {
+    throw new Error(`
+      Sorry that bing translator seems to be asking the captcha,
+      Please take care not to request too frequently.
+      The response code is ${resp.StatusCode}.
+    `)
+  }
 
   console.log(resp)
 
