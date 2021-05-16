@@ -112,11 +112,15 @@ async function translate(text, from, to, correct, raw, tld, userAgent) {
     referer: TRANSLATE_WEBSITE,
   }
 
-  const { body } = await got.post(requestURL, {
+  const resp = await got.post(requestURL, {
     headers: requestHeaders,
     body: requestBody,
     responseType: 'json'
   })
+
+  console.log(resp)
+
+  const body = resp.body
 
   const translation = body[0].translations[0]
   const detectedLang = body[0].detectedLanguage
