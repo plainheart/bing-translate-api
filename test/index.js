@@ -10,9 +10,9 @@ function printCorrectRes(res) {
   console.log()
 }
 
-function onErr(e) {
+function onErr(e, notExit) {
   console.error(e)
-  process.exit(1)
+  notExit || process.exit(1)
 }
 
 // default: auto-detect(zh-Hans) -> en
@@ -51,7 +51,7 @@ translate('this text is very long this text is very long this text is very long 
 .catch(onErr)
 
 // max text len -> return `undefined` for exceeding max length
-translate((function() {
+translate((() => {
   let text = ''
   while (text.length < 1001) {
     text += ~~(Math.random() * 10) + ''
@@ -59,4 +59,4 @@ translate((function() {
   return text
 })(), null, 'en')
 .then(printRes)
-.catch(onErr)
+.catch(e => onErr(e, true))
