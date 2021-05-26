@@ -53,7 +53,7 @@ translate('this text is very long this text is very long this text is very long 
 // max text len -> return `undefined` for exceeding max length
 translate((function() {
   let text = ''
-  while (text.length < 1000) {
+  while (text.length < 1001) {
     text += ~~(Math.random() * 10) + ''
   }
   return text
