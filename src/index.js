@@ -8,7 +8,7 @@ const TRANSLATE_WEBSITE = TRANSLATE_API_ROOT + '/translator'
 const TRANSLATE_API = TRANSLATE_API_ROOT + '/ttranslatev3?isVertical=1\u0026'
 const TRANSLATE_SPELL_CHECK_API = TRANSLATE_API_ROOT + '/tspellcheckv3?isVertical=1\u0026'
 
-const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36'
+const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36'
 const CONTENT_TYPE = 'application/x-www-form-urlencoded'
 
 // PENDING: fetch from `params_RichTranslate`?

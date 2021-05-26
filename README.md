@@ -53,7 +53,7 @@ Translation result
 
 Type: `string`
 
-The text to be translated, cann't be blank.
+The text to be translated, can't be blank. The **maximum** text length is **1000**.
 
 ##### from
 Type: `string` Default: `auto-detect`
@@ -73,7 +73,7 @@ Type: `boolean` Default: `false` Since: `v1.1.0`
 Whether to correct the input text.
 
 Note that:
-1) There is currently a limit of **50 characters** for correction service.
+1) There is currently a **limit** of **50 characters** for correction service.
 2) **Only** [the languages in the list](https://github.com/plainheart/bing-translate-api/blob/master/src/lang.js#L99-L120) are supported to be corrected.
 
 ##### raw
@@ -93,7 +93,7 @@ The header value of `user-agent` used in API requests.
 
 Default:
 ```
-Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36
 ```
 
 ## License
