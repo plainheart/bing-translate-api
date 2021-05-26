@@ -49,3 +49,14 @@ translate('Bore da', null, 'en', true)
 translate('this text is very long this text is very long this text is very long this text is very long this text is very long this text is very long ', null, 'en', true)
 .then(printCorrectRes)
 .catch(onErr)
+
+// max text len -> return `undefined` for exceeding max length
+translate((function() {
+  let text = ''
+  while (text.length < 1000) {
+    text += ~~(Math.random() * 10) + ''
+  }
+  return text
+})(), null, 'en')
+.then(printRes)
+.catch(onErr)
