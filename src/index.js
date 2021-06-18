@@ -70,7 +70,7 @@ async function fetchGlobalConfig(tld, userAgent) {
     token = _token
     tokenExpiryInterval = interval
   } catch (e) {
-    console.error('failed to fetch IG and IID', e)
+    console.error('failed to fetch global config', e)
     throw e
   }
   return globalConfig = {
