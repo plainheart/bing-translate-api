@@ -166,15 +166,11 @@ async function translate(text, from, to, correct, raw, tld, userAgent) {
     cookie: globalConfig.cookie
   }
 
-  const res2 = await got.post(requestURL, {
+  const { body } = await got.post(requestURL, {
     headers: requestHeaders,
     body: requestBody,
     responseType: 'json'
   })
-
-  console.log(res2)
-
-  const { body } = res2
 
   if (body.ShowCaptcha) {
     throw new Error(`
