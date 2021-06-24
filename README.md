@@ -82,9 +82,9 @@ Type: `boolean` Default: `false`
 Whether the translation result contains raw response from Bing API.
 
 ##### tld
-Type: `string` Default: `''`
+Type: `string` Default: `'www'`
 
-Can be `'www'` | `'cn'` | `''`
+Can be `'www'` | `'cn'`
 
 ##### userAgent
 Type: `string`
