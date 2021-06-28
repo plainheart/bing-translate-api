@@ -57,7 +57,6 @@ async function fetchGlobalConfig(userAgent) {
     })
 
     tld = redirects[0].match(/^https?:\/\/(\w+)\.bing\.com/)[1]
-    console.log(redirects, tld)
 
     // PENDING: optional?
     cookie = headers['set-cookie'].map(c => c.split(';')[0]).join('; ')
@@ -120,10 +119,9 @@ function makeRequestBody(isSpellCheck, text, fromLang, toLang) {
  * @param {string} to <optional> target language code. `en` by default.
  * @param {boolean} correct <optional> whether to correct the input text. `false` by default.
  * @param {boolean} raw <optional> the result contains raw response if `true`
- * @param {string} tld <optional> www | cn. `www` by default.
  * @param {string} userAgent <optional> the expected user agent header
  */
-async function translate(text, from, to, correct, raw, tld, userAgent) {
+async function translate(text, from, to, correct, raw, userAgent) {
   if (!text || !(text = text.trim())) {
     return
   }
@@ -157,8 +155,6 @@ async function translate(text, from, to, correct, raw, tld, userAgent) {
   from = lang.getLangCode(from)
   to = lang.getLangCode(to)
 
-  console.log(globalConfig)
-
   const requestURL = makeRequestURL(false)
   const requestBody = makeRequestBody(false, text, from, to === 'auto-detect' ? 'en' : to)
 
@@ -169,15 +165,11 @@ async function translate(text, from, to, correct, raw, tld, userAgent) {
     cookie: globalConfig.cookie
   }
 
-  const res2 = await got.post(requestURL, {
+  const { body } = await got.post(requestURL, {
     headers: requestHeaders,
     body: requestBody,
     responseType: 'json'
   })
-
-  console.log(res2)
-
-  const { body } = res2
 
   if (body.ShowCaptcha) {
     throw new Error(`
