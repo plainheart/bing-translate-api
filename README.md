@@ -47,7 +47,7 @@ Translation result
 
 ## API
 
-### translate(text, [from], [to], [correct], [raw], [tld], [userAgent])
+### translate(text, [from], [to], [correct], [raw], [userAgent])
 
 #### text
 
@@ -80,11 +80,6 @@ Note that:
 Type: `boolean` Default: `false`
 
 Whether the translation result contains raw response from Bing API.
-
-##### tld
-Type: `string` Default: `'www'`
-
-Can be `'www'` | `'cn'`
 
 ##### userAgent
 Type: `string`

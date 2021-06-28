@@ -20,9 +20,6 @@ let globalConfig
 let globalConfigPromise
 
 function replaceTld(url, tld) {
-  if (tld !== 'www' && tld !== 'cn') {
-    console.warn(`the tld '${tld}' may not be valid.`)
-  }
   return url.replace('{tld}', tld ? tld + '.' : '')
 }
 
@@ -40,10 +37,10 @@ function isTokenExpired() {
 
 /**
  * fetch global config including `IG`, `IID`, `token`, `key`, `tokenTs`, `tokenExpiryInterval` and `cookie`
- * @param {string} tld www | cn | ''
  * @param {string} userAgent
  */
-async function fetchGlobalConfig(tld, userAgent) {
+async function fetchGlobalConfig(userAgent) {
+  let tld
   let IG
   let IID
   let token
@@ -53,11 +50,14 @@ async function fetchGlobalConfig(tld, userAgent) {
   let isAuthv2
   let cookie
   try {
-    const { body, headers } = await got(replaceTld(TRANSLATE_WEBSITE, tld), {
+    const { body, headers, request: { redirects } } = await got(replaceTld(TRANSLATE_WEBSITE, tld), {
       headers: {
         'user-agent': userAgent || USER_AGENT
       }
     })
+
+    tld = redirects[0].match(/^https?:\/\/(\w+)\.bing\.com/)[1]
+    console.log(redirects, tld)
 
     // PENDING: optional?
     cookie = headers['set-cookie'].map(c => c.split(';')[0]).join('; ')
@@ -76,6 +76,7 @@ async function fetchGlobalConfig(tld, userAgent) {
     throw e
   }
   return globalConfig = {
+    tld,
     IG,
     IID,
     key,
@@ -89,13 +90,15 @@ async function fetchGlobalConfig(tld, userAgent) {
   }
 }
 
-function makeRequestURL(isSpellCheck, IG, IID, count, tld) {
+function makeRequestURL(isSpellCheck) {
+  const { IG, IID, tld } = globalConfig
   return replaceTld(isSpellCheck ? TRANSLATE_SPELL_CHECK_API : TRANSLATE_API, tld)
     + (IG && IG.length ? '&IG=' + IG : '')
-    + (IID && IID.length ? '&IID=' + IID + '.' + count : '')
+    + (IID && IID.length ? '&IID=' + IID + '.' + (globalConfig.count++) : '')
 }
 
-function makeRequestBody(isSpellCheck, text, fromLang, toLang, token, key, isAuthv2) {
+function makeRequestBody(isSpellCheck, text, fromLang, toLang) {
+  const { token, key, isAuthv2 } = globalConfig
   const body = {
     fromLang,
     text,
@@ -103,7 +106,7 @@ function makeRequestBody(isSpellCheck, text, fromLang, toLang, token, key, isAut
     key,
     isAuthv2
   }
-  if (!isSpellCheck) {
+  if (!isSpellCheck && toLang) {
     body.to = toLang
   }
   return qs.stringify(body)
@@ -129,16 +132,14 @@ async function translate(text, from, to, correct, raw, tld, userAgent) {
     throw new Error(`The supported maximum length of text is ${MAX_TEXT_LEN}. Please shorten the text.`)
   }
 
-  tld = tld || 'www'
-
   if (!globalConfigPromise) {
-    globalConfigPromise = fetchGlobalConfig(tld, userAgent)
+    globalConfigPromise = fetchGlobalConfig(userAgent)
   }
 
   await globalConfigPromise
 
   if (isTokenExpired()) {
-    globalConfigPromise = fetchGlobalConfig(tld, userAgent)
+    globalConfigPromise = fetchGlobalConfig(userAgent)
 
     await globalConfigPromise
   }
@@ -156,21 +157,27 @@ async function translate(text, from, to, correct, raw, tld, userAgent) {
   from = lang.getLangCode(from)
   to = lang.getLangCode(to)
 
-  const requestURL = makeRequestURL(false, globalConfig.IG, globalConfig.IID, ++globalConfig.count, tld)
-  const requestBody = makeRequestBody(false, text, from, to === 'auto-detect' ? 'en' : to, globalConfig.token, globalConfig.key, globalConfig.isAuthv2)
+  console.log(globalConfig)
+
+  const requestURL = makeRequestURL(false)
+  const requestBody = makeRequestBody(false, text, from, to === 'auto-detect' ? 'en' : to)
 
   const requestHeaders = {
     'content-type': CONTENT_TYPE,
     'user-agent': userAgent || USER_AGENT,
-    referer: replaceTld(TRANSLATE_WEBSITE, tld),
+    referer: replaceTld(TRANSLATE_WEBSITE, globalConfig.tld),
     cookie: globalConfig.cookie
   }
 
-  const { body } = await got.post(requestURL, {
+  const res2 = await got.post(requestURL, {
     headers: requestHeaders,
     body: requestBody,
     responseType: 'json'
   })
+
+  console.log(res2)
+
+  const { body } = res2
 
   if (body.ShowCaptcha) {
     throw new Error(`
@@ -213,8 +220,8 @@ async function translate(text, from, to, correct, raw, tld, userAgent) {
     // and only parts of languages are supported
     // otherwise, it will return status code 400
     if (len <= MAX_CORRECT_TEXT_LEN && lang.canCorrect(correctLang)) {
-      const requestURL = makeRequestURL(true, globalConfig.IG, globalConfig.IID, ++globalConfig.count, tld)
-      const requestBody = makeRequestBody(true, text, correctLang, null, globalConfig.token, globalConfig.key, globalConfig.isAuthv2)
+      const requestURL = makeRequestURL(true)
+      const requestBody = makeRequestBody(true, text, correctLang)
 
       const { body } = await got.post(requestURL, {
         headers: requestHeaders,
