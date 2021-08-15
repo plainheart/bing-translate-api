@@ -120,7 +120,7 @@ const LANGS_CAN_CORRECT = [
 ]
 
 function getLangCode(lang) {
-  if (!lang) {
+  if (!lang || typeof lang !== 'string') {
     return
   }
 
