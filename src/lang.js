@@ -120,7 +120,7 @@ const LANGS_CAN_CORRECT = [
 ]
 
 function getLangCode(lang) {
-  if (!lang.toString()) {
+  if (!lang || typeof lang !== 'string') {
     return
   }
 
@@ -128,7 +128,7 @@ function getLangCode(lang) {
     return lang
   }
 
-  lang = lang.toString().toLowerCase()
+  lang = lang.toLowerCase()
 
   const supportedLangCodes = Object.keys(LANGS)
 
