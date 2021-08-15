@@ -128,7 +128,7 @@ function getLangCode(lang) {
     return lang
   }
 
-  lang = lang.toLowerCase()
+  lang = lang.toString().toLowerCase()
 
   const supportedLangCodes = Object.keys(LANGS)
 
