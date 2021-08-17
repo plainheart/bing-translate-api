@@ -102,8 +102,11 @@ function makeRequestBody(isSpellCheck, text, fromLang, toLang) {
     fromLang,
     text,
     token,
-    key,
-    isAuthv2
+    key
+  }
+  // PENDING: currenly there is no `isAuthv2` param in body
+  if (isAuthv2 != null) {
+    body.isAuthv2 = isAuthv2
   }
   if (!isSpellCheck && toLang) {
     body.to = toLang
