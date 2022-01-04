@@ -65,7 +65,8 @@ async function fetchGlobalConfig(userAgent) {
     IID = body.match(/data-iid="([^"]+)"/)[1]
 
     // required
-    const [_key, _token, interval, _isVertical, _isAuthv2] = new Function(`return ${body.match(/params_RichTranslateHelper\s?=\s?([^\]]+\])/)[1]}`)()
+    // PENDING: use JSON.parse?
+    const [_key, _token, interval, _isVertical, _isAuthv2] = new Function(`"use strict";return ${body.match(/params_RichTranslateHelper\s?=\s?([^\]]+\])/)[1]}`)()
     key = tokenTs = _key
     token = _token
     tokenExpiryInterval = interval
