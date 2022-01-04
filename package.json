@@ -31,6 +31,6 @@
   "homepage": "https://github.com/plainheart/bing-translate-api#readme",
   "dependencies": {
     "got": "^11.8.2",
-    "qs": "^6.9.6"
+    "qs": "^6.10.2"
   }
 }
