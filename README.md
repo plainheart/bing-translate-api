@@ -93,7 +93,7 @@ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)
 
 ## License
 
-MIT &copy; 2021 [plainheart](https://github.com/plainheart).
+MIT &copy; 2021-2022 [plainheart](https://github.com/plainheart).
 
 ## Thanks
 
