@@ -30,6 +30,11 @@ translate('Hello', null, 'ka')
 .then(printRes)
 .catch(onErr)
 
+// Literal Chinese(lzh) to Simplified Chinese(zh-Hans)
+translate('邹忌修八尺有余，而形貌昳丽。朝服衣冠，窥镜，谓其妻曰：“我孰与城北徐公美？”其妻曰：“君美甚，徐公何能及君也？”', 'lzh', 'zh-Hans')
+.then(printRes)
+.catch(onErr)
+
 // auto-detect(Korean) to zh-Hant
 translate('안녕하십니까', null, 'zh-Hant')
 .then(printRes)
