@@ -2,7 +2,7 @@
 [![NPM version](https://img.shields.io/npm/v/bing-translate-api.svg?style=flat)](https://www.npmjs.org/package/bing-translate-api)
 [![Auto Test](https://github.com/plainheart/bing-translate-api/actions/workflows/autotest.yml/badge.svg)](https://github.com/plainheart/bing-translate-api/actions/workflows/autotest.yml)
 [![NPM Downloads](https://img.shields.io/npm/dm/bing-translate-api.svg)](https://npmcharts.com/compare/bing-translate-api?minimal=true)
-[![License](https://img.shields.io/npm/l/bing-translate-api.svg)](https://www.npmjs.com/package/bing-translate-api)
+[![License](https://img.shields.io/npm/l/bing-translate-api.svg)](https://github.com/plainheart/bing-translate-api/blob/master/LICENSE)
 
 A **simple** and **free** API for [Bing Translator](https://bing.com/translator) for Node.js.
 
@@ -49,25 +49,25 @@ Translation result
 
 ### translate(text, [from], [to], [correct], [raw], [userAgent])
 
-#### text
+#### _text_
 
 Type: `string`
 
 The text to be translated, can't be blank. The **maximum** text length is **1000**.
 
-##### from
+##### _from_
 Type: `string` Default: `auto-detect`
 
 The language code of source text.
 **MUST** be `auto-detect` or one of the codes/names (not case sensitive) contained in [lang.js](https://github.com/plainheart/bing-translate-api/blob/master/src/lang.json)
 
-##### to
+##### _to_
 Type: `string` Default: `en`
 
 The language in which the text should be translated.
 **MUST** be one of the codes/names (not case sensitive) contained in [lang.js](https://github.com/plainheart/bing-translate-api/blob/master/src/lang.json).
 
-##### correct
+##### _correct_
 Type: `boolean` Default: `false` Since: `v1.1.0`
 
 Whether to correct the input text.
@@ -76,12 +76,12 @@ Note that:
 1) There is currently a **limit** of **50 characters** for correction service.
 2) **Only** [the languages in the list](https://github.com/plainheart/bing-translate-api/blob/master/src/lang.js#L99-L120) are supported to be corrected.
 
-##### raw
+##### _raw_
 Type: `boolean` Default: `false`
 
 Whether the translation result contains raw response from Bing API.
 
-##### userAgent
+##### _userAgent_
 Type: `string`
 
 The header value of `user-agent` used in API requests. 
@@ -93,7 +93,7 @@ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)
 
 ## License
 
-MIT &copy; 2021 [plainheart](https://github.com/plainheart).
+MIT &copy; 2021-2022 [plainheart](https://github.com/plainheart).
 
 ## Thanks
 
