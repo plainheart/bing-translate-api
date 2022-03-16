@@ -59,13 +59,13 @@ The text to be translated, can't be blank. The **maximum** text length is **1000
 Type: `string` Default: `auto-detect`
 
 The language code of source text.
-**MUST** be `auto-detect` or one of the codes/names (not case sensitive) contained in [lang.js](https://github.com/plainheart/bing-translate-api/blob/master/src/lang.js)
+**MUST** be `auto-detect` or one of the codes/names (not case sensitive) contained in [lang.js](https://github.com/plainheart/bing-translate-api/blob/master/src/lang.json)
 
 ##### to
 Type: `string` Default: `en`
 
 The language in which the text should be translated.
-**MUST** be one of the codes/names (not case sensitive) contained in [lang.js](https://github.com/plainheart/bing-translate-api/blob/master/src/lang.js).
+**MUST** be one of the codes/names (not case sensitive) contained in [lang.js](https://github.com/plainheart/bing-translate-api/blob/master/src/lang.json).
 
 ##### correct
 Type: `boolean` Default: `false` Since: `v1.1.0`

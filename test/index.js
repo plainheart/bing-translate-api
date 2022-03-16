@@ -25,6 +25,11 @@ translate('Hello', null, 'zh-Hans')
 .then(printRes)
 .catch(onErr)
 
+// auto-detect(English) to Georgian
+translate('Hello', null, 'ka')
+.then(printRes)
+.catch(onErr)
+
 // auto-detect(Korean) to zh-Hant
 translate('안녕하십니까', null, 'zh-Hant')
 .then(printRes)

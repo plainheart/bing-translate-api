@@ -4,7 +4,8 @@
   "description": "A simple and free API for Bing Translator for Node.js",
   "main": "src/index.js",
   "scripts": {
-    "test": "node test/index.js && node test/lang.js"
+    "test": "node test/index.js && node test/lang.js",
+    "gen:langmap": "node scripts/generate-lang-map.js"
   },
   "keywords": [
     "bing",
@@ -30,7 +31,10 @@
   },
   "homepage": "https://github.com/plainheart/bing-translate-api#readme",
   "dependencies": {
-    "got": "^11.8.2",
-    "qs": "^6.10.2"
+    "got": "^11.8.3",
+    "qs": "^6.10.3"
+  },
+  "devDependencies": {
+    "cheerio": "^1.0.0-rc.10"
   }
 }
