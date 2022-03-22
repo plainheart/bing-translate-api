@@ -38,8 +38,9 @@ function isTokenExpired() {
 /**
  * fetch global config including `IG`, `IID`, `token`, `key`, `tokenTs`, `tokenExpiryInterval` and `cookie`
  * @param {string} userAgent
+ * @param {import('got').Agents} proxyAgents
  */
-async function fetchGlobalConfig(userAgent) {
+async function fetchGlobalConfig(userAgent, proxyAgents) {
   let tld
   let IG
   let IID
@@ -53,7 +54,8 @@ async function fetchGlobalConfig(userAgent) {
     const { body, headers, request: { redirects } } = await got(replaceTld(TRANSLATE_WEBSITE, tld), {
       headers: {
         'user-agent': userAgent || USER_AGENT
-      }
+      },
+      agent: proxyAgents
     })
 
     tld = redirects[0].match(/^https?:\/\/(\w+)\.bing\.com/)[1]
@@ -124,8 +126,9 @@ function makeRequestBody(isSpellCheck, text, fromLang, toLang) {
  * @param {boolean} correct <optional> whether to correct the input text. `false` by default.
  * @param {boolean} raw <optional> the result contains raw response if `true`
  * @param {string} userAgent <optional> the expected user agent header
+ * @param {import('got').Agents} proxyAgents <optional> set agents of `got` for proxy
  */
-async function translate(text, from, to, correct, raw, userAgent) {
+async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
   if (!text || !(text = text.trim())) {
     return
   }
@@ -135,13 +138,13 @@ async function translate(text, from, to, correct, raw, userAgent) {
   }
 
   if (!globalConfigPromise) {
-    globalConfigPromise = fetchGlobalConfig(userAgent)
+    globalConfigPromise = fetchGlobalConfig(userAgent, proxyAgents)
   }
 
   await globalConfigPromise
 
   if (isTokenExpired()) {
-    globalConfigPromise = fetchGlobalConfig(userAgent)
+    globalConfigPromise = fetchGlobalConfig(userAgent, proxyAgents)
 
     await globalConfigPromise
   }
@@ -172,7 +175,8 @@ async function translate(text, from, to, correct, raw, userAgent) {
   const { body } = await got.post(requestURL, {
     headers: requestHeaders,
     body: requestBody,
-    responseType: 'json'
+    responseType: 'json',
+    agent: proxyAgents
   })
 
   if (body.ShowCaptcha) {
@@ -222,7 +226,8 @@ async function translate(text, from, to, correct, raw, userAgent) {
       const { body } = await got.post(requestURL, {
         headers: requestHeaders,
         body: requestBody,
-        responseType: 'json'
+        responseType: 'json',
+        agent: proxyAgents
       })
 
       res.correctedText = body && body.correctedText
