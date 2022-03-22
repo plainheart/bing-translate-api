@@ -47,7 +47,7 @@ Translation result
 
 ## API
 
-### translate(text, [from], [to], [correct], [raw], [userAgent])
+### translate(text, [from], [to], [correct], [raw], [userAgent], [proxyAgents])
 
 #### _text_
 
@@ -90,6 +90,11 @@ Default:
 ```
 Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36
 ```
+
+##### _proxyAgents_
+Type: [`Got['Agents']`](https://github.com/sindresorhus/got/blob/main/source/core/options.ts#L50-L54)
+
+Set [agents](https://github.com/sindresorhus/got/blob/main/documentation/tips.md#proxying) of [`got`](https://github.com/sindresorhus/got) for proxy.
 
 ## License
 
