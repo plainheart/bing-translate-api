@@ -31,8 +31,7 @@
   },
   "homepage": "https://github.com/plainheart/bing-translate-api#readme",
   "dependencies": {
-    "got": "^11.8.3",
-    "qs": "^6.10.3"
+    "got": "^11.8.3"
   },
   "devDependencies": {
     "cheerio": "^1.0.0-rc.10"

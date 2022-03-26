@@ -1,5 +1,4 @@
 const got = require('got')
-const qs = require('qs')
 
 const lang = require('./lang')
 
@@ -9,7 +8,6 @@ const TRANSLATE_API = TRANSLATE_API_ROOT + '/ttranslatev3?isVertical=1\u0026'
 const TRANSLATE_SPELL_CHECK_API = TRANSLATE_API_ROOT + '/tspellcheckv3?isVertical=1\u0026'
 
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36'
-const CONTENT_TYPE = 'application/x-www-form-urlencoded'
 
 // PENDING: fetch from `params_RichTranslate`?
 const MAX_TEXT_LEN = 1000
@@ -114,7 +112,7 @@ function makeRequestBody(isSpellCheck, text, fromLang, toLang) {
   if (!isSpellCheck && toLang) {
     body.to = toLang
   }
-  return qs.stringify(body)
+  return body
 }
 
 /**
@@ -166,7 +164,6 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
   const requestBody = makeRequestBody(false, text, from, to === 'auto-detect' ? 'en' : to)
 
   const requestHeaders = {
-    'content-type': CONTENT_TYPE,
     'user-agent': userAgent || USER_AGENT,
     referer: replaceTld(TRANSLATE_WEBSITE, globalConfig.tld),
     cookie: globalConfig.cookie
@@ -174,7 +171,8 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
 
   const { body } = await got.post(requestURL, {
     headers: requestHeaders,
-    body: requestBody,
+    // got will set CONTENT_TYPE as `application/x-www-form-urlencoded`
+    form: requestBody,
     responseType: 'json',
     agent: proxyAgents
   })
@@ -225,7 +223,7 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
 
       const { body } = await got.post(requestURL, {
         headers: requestHeaders,
-        body: requestBody,
+        form: requestBody,
         responseType: 'json',
         agent: proxyAgents
       })
