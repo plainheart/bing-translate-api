@@ -82,7 +82,7 @@ Type: `boolean` Default: `false`
 Whether the translation result contains raw response from Bing API.
 
 ##### _userAgent_
-Type: `string`
+Type: `string` Default: `undefined` Since: `v2.4.0`
 
 The header value of `user-agent` used in API requests. 
 
