@@ -82,7 +82,7 @@ Type: `boolean` Default: `false`
 Whether the translation result contains raw response from Bing API.
 
 ##### _userAgent_
-Type: `string` Default: `undefined` Since: `v2.4.0`
+Type: `string`
 
 The header value of `user-agent` used in API requests. 
 
@@ -92,7 +92,7 @@ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)
 ```
 
 ##### _proxyAgents_
-Type: [`Got['Agents']`](https://github.com/sindresorhus/got/blob/main/source/core/options.ts#L50-L54)
+Type: [`Got['Agents']`](https://github.com/sindresorhus/got/blob/main/source/core/options.ts#L50-L54) Default: `undefined` Since: `v2.4.0`
 
 Set [agents](https://github.com/sindresorhus/got/blob/main/documentation/tips.md#proxying) of [`got`](https://github.com/sindresorhus/got) for proxy.
 
