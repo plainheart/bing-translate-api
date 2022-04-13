@@ -30,7 +30,7 @@ jobs:
         env:
           cache-name: cache-node-modules
         with:
-          path: ./node_modules
+          path: '**/node_modules'
           key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
 
       - name: Install dependencies
