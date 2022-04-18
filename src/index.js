@@ -4,8 +4,8 @@ const lang = require('./lang')
 
 const TRANSLATE_API_ROOT = 'https://{tld}bing.com'
 const TRANSLATE_WEBSITE = TRANSLATE_API_ROOT + '/translator'
-const TRANSLATE_API = TRANSLATE_API_ROOT + '/ttranslatev3?isVertical=1\u0026'
-const TRANSLATE_SPELL_CHECK_API = TRANSLATE_API_ROOT + '/tspellcheckv3?isVertical=1\u0026'
+const TRANSLATE_API = TRANSLATE_API_ROOT + '/ttranslatev3'
+const TRANSLATE_SPELL_CHECK_API = TRANSLATE_API_ROOT + '/tspellcheckv3'
 
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36'
 
@@ -44,9 +44,10 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
   let IID
   let token
   let key
-  let tokenTs
   let tokenExpiryInterval
-  let isAuthv2
+  let isVertical
+  let frontDoorBotClassification
+  let isSignedInOrCorporateUser
   let cookie
   try {
     const { body, headers, request: { redirects } } = await got(replaceTld(TRANSLATE_WEBSITE, tld), {
@@ -65,12 +66,9 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
     IID = body.match(/data-iid="([^"]+)"/)[1]
 
     // required
-    // PENDING: use JSON.parse?
-    const [_key, _token, interval, _isVertical, _isAuthv2] = new Function(`"use strict";return ${body.match(/params_RichTranslateHelper\s?=\s?([^\]]+\])/)[1]}`)()
-    key = tokenTs = _key
-    token = _token
-    tokenExpiryInterval = interval
-    isAuthv2 = _isAuthv2
+    ;[key, token, tokenExpiryInterval, isVertical, frontDoorBotClassification, isSignedInOrCorporateUser] = JSON.parse(
+      body.match(/params_RichTranslateHelper\s?=\s?([^\]]+\])/)[1]
+    )
   } catch (e) {
     console.error('failed to fetch global config', e)
     throw e
@@ -81,9 +79,11 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
     IID,
     key,
     token,
-    tokenTs,
+    tokenTs: key,
     tokenExpiryInterval,
-    isAuthv2,
+    isVertical,
+    frontDoorBotClassification,
+    isSignedInOrCorporateUser,
     cookie,
     // PENDING: reset count if count value is large?
     count: 0
@@ -91,23 +91,20 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
 }
 
 function makeRequestURL(isSpellCheck) {
-  const { IG, IID, tld } = globalConfig
+  const { IG, IID, tld, isVertical } = globalConfig
   return replaceTld(isSpellCheck ? TRANSLATE_SPELL_CHECK_API : TRANSLATE_API, tld)
+    + '?isVertical=' + +isVertical
     + (IG && IG.length ? '&IG=' + IG : '')
     + (IID && IID.length ? '&IID=' + IID + '.' + (globalConfig.count++) : '')
 }
 
 function makeRequestBody(isSpellCheck, text, fromLang, toLang) {
-  const { token, key, isAuthv2 } = globalConfig
+  const { token, key } = globalConfig
   const body = {
     fromLang,
     text,
     token,
     key
-  }
-  // PENDING: currenly there is no `isAuthv2` param in body
-  if (isAuthv2 != null) {
-    body.isAuthv2 = isAuthv2
   }
   if (!isSpellCheck && toLang) {
     body.to = toLang
