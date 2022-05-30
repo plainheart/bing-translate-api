@@ -214,7 +214,7 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
     // currently, there is a limit of 50 characters for correction service
     // and only parts of languages are supported
     // otherwise, it will return status code 400
-    if (len <= MAX_CORRECT_TEXT_LEN && lang.canCorrect(correctLang)) {
+    if (len <= MAX_CORRECT_TEXT_LEN && lang.isCorrectable(correctLang)) {
       const requestURL = makeRequestURL(true)
       const requestBody = makeRequestBody(true, text, correctLang)
 

@@ -6,7 +6,7 @@ const LANGS = {
   ...require('./lang.json')
 }
 
-const LANGS_CAN_CORRECT = [
+const LANGS_CORRECTABLE = [
   'da',
   'en',
   'nl',
@@ -54,14 +54,14 @@ function isSupported(lang) {
   return !!getLangCode(lang)
 }
 
-function canCorrect(lang) {
+function isCorrectable(lang) {
   const langCode = getLangCode(lang)
-  return langCode && LANGS_CAN_CORRECT.indexOf(langCode) > -1
+  return langCode && LANGS_CORRECTABLE.indexOf(langCode) > -1
 }
 
 module.exports = {
   LANGS,
   getLangCode,
   isSupported,
-  canCorrect
+  isCorrectable
 }
