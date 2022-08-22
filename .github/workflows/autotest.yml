@@ -9,6 +9,7 @@ on:
 
 jobs:
   autotest:
+    if: ${{ github.repository_owner == 'plainheart' }}
     runs-on: ubuntu-latest
 
     strategy:
