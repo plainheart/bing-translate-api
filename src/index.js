@@ -7,7 +7,7 @@ const TRANSLATE_WEBSITE = TRANSLATE_API_ROOT + '/translator'
 const TRANSLATE_API = TRANSLATE_API_ROOT + '/ttranslatev3'
 const TRANSLATE_SPELL_CHECK_API = TRANSLATE_API_ROOT + '/tspellcheckv3'
 
-const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'
+const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.5195.127 Safari/537.36'
 
 // PENDING: fetch from `params_RichTranslate`?
 const MAX_TEXT_LEN = 1000
