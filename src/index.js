@@ -1,3 +1,6 @@
+/**
+ * @type {import('got').Got}
+ */
 const got = require('got')
 
 const lang = require('./lang')
