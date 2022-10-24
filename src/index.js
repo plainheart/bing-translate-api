@@ -5,7 +5,7 @@ const got = require('got')
 
 const lang = require('./lang')
 
-const TRANSLATE_API_ROOT = 'https://{tld}bing.com'
+const TRANSLATE_API_ROOT = 'https://{s}bing.com'
 const TRANSLATE_WEBSITE = TRANSLATE_API_ROOT + '/translator'
 const TRANSLATE_API = TRANSLATE_API_ROOT + '/ttranslatev3'
 const TRANSLATE_SPELL_CHECK_API = TRANSLATE_API_ROOT + '/tspellcheckv3'
@@ -20,8 +20,8 @@ const MAX_CORRECT_TEXT_LEN = 50
 let globalConfig
 let globalConfigPromise
 
-function replaceTld(url, tld) {
-  return url.replace('{tld}', tld ? tld + '.' : '')
+function replaceSubdomain(url, subdomain) {
+  return url.replace('{s}', subdomain ? subdomain + '.' : '')
 }
 
 /**
@@ -42,7 +42,7 @@ function isTokenExpired() {
  * @param {import('got').Agents} proxyAgents
  */
 async function fetchGlobalConfig(userAgent, proxyAgents) {
-  let tld
+  let subdomain
   let IG
   let IID
   let token
@@ -53,14 +53,14 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
   let isSignedInOrCorporateUser
   let cookie
   try {
-    const { body, headers, request: { redirects } } = await got(replaceTld(TRANSLATE_WEBSITE, tld), {
+    const { body, headers, request: { redirects } } = await got(replaceSubdomain(TRANSLATE_WEBSITE, subdomain), {
       headers: {
         'user-agent': userAgent || USER_AGENT
       },
       agent: proxyAgents
     })
 
-    tld = redirects[0].match(/^https?:\/\/(\w+)\.bing\.com/)[1]
+    subdomain = redirects[0].match(/^https?:\/\/(\w+)\.bing\.com/)[1]
 
     // PENDING: optional?
     cookie = headers['set-cookie'].map(c => c.split(';')[0]).join('; ')
@@ -77,7 +77,7 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
     throw e
   }
   return globalConfig = {
-    tld,
+    subdomain,
     IG,
     IID,
     key,
@@ -94,8 +94,8 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
 }
 
 function makeRequestURL(isSpellCheck) {
-  const { IG, IID, tld, isVertical } = globalConfig
-  return replaceTld(isSpellCheck ? TRANSLATE_SPELL_CHECK_API : TRANSLATE_API, tld)
+  const { IG, IID, subdomain, isVertical } = globalConfig
+  return replaceSubdomain(isSpellCheck ? TRANSLATE_SPELL_CHECK_API : TRANSLATE_API, subdomain)
     + '?isVertical=' + +isVertical
     + (IG && IG.length ? '&IG=' + IG : '')
     + (IID && IID.length ? '&IID=' + IID + '.' + (globalConfig.count++) : '')
@@ -165,7 +165,7 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
 
   const requestHeaders = {
     'user-agent': userAgent || USER_AGENT,
-    referer: replaceTld(TRANSLATE_WEBSITE, globalConfig.tld),
+    referer: replaceSubdomain(TRANSLATE_WEBSITE, globalConfig.subdomain),
     cookie: globalConfig.cookie
   }
 
