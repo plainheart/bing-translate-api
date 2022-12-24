@@ -2,6 +2,7 @@
  * @type {import('got').Got}
  */
 const got = require('got')
+const ip = require('ip')
 const randomip = require('random-ip')
 
 const lang = require('./lang')
@@ -20,6 +21,14 @@ const MAX_CORRECT_TEXT_LEN = 50
 
 let globalConfig
 let globalConfigPromise
+
+function generateRandomIp() {
+  let addr = randomip('0.0.0.0')
+  while(ip.isPrivate(addr)) {
+    addr = randomip('0.0.0.0')
+  }
+  return addr
+}
 
 function replaceSubdomain(url, subdomain) {
   return url.replace('{s}', subdomain ? subdomain + '.' : '')
@@ -60,7 +69,7 @@ async function fetchGlobalConfig(userAgent, proxyAgents, ipProxy) {
     }
 
     if (ipProxy) {
-      requestHeaders['CLIENT-IP'] = requestHeaders['X-FORWARDED-FOR'] = randomip('0.0.0.0')
+      requestHeaders['CLIENT-IP'] = requestHeaders['X-FORWARDED-FOR'] = generateRandomIp()
     }
 
     const { body, headers, request: { redirects } } = await got(replaceSubdomain(TRANSLATE_WEBSITE, subdomain), {
@@ -179,7 +188,7 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents, i
   }
 
   if (ipProxy) {
-    requestHeaders['CLIENT-IP'] = requestHeaders['X-FORWARDED-FOR'] = randomip('0.0.0.0')
+    requestHeaders['CLIENT-IP'] = requestHeaders['X-FORWARDED-FOR'] = generateRandomIp()
   }
 
   const { body } = await got.post(requestURL, {
