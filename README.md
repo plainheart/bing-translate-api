@@ -88,7 +88,7 @@ The header value of `user-agent` used in API requests.
 
 Default:
 ```
-Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.5195.127 Safari/537.36
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
 ```
 
 ##### _proxyAgents_
@@ -98,7 +98,7 @@ Set [agents](https://github.com/sindresorhus/got/blob/main/documentation/tips.md
 
 ## License
 
-MIT &copy; 2021-2022 [plainheart](https://github.com/plainheart).
+MIT &copy; 2021-2023 [plainheart](https://github.com/plainheart).
 
 ## Thanks
 
