@@ -46,7 +46,7 @@ translate('gradent', null, 'en', true)
 .catch(onErr)
 
 // correct short text to `this text is very long`
-translate('this text is very lang', null, 'en', true)
+translate('this text is vry lang', null, 'en', true)
 .then(printCorrectRes)
 .catch(onErr)
 
@@ -61,12 +61,6 @@ translate('this text is very long this text is very long this text is very long 
 .catch(onErr)
 
 // max text len -> return `undefined` for exceeding max length
-translate((() => {
-  let text = ''
-  while (text.length < 1001) {
-    text += ~~(Math.random() * 10) + ''
-  }
-  return text
-})(), null, 'en')
+translate(new Array(1001).fill('0').join(''), null, 'en')
 .then(printRes)
 .catch(e => onErr(e, true))
