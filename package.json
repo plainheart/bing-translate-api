@@ -19,7 +19,8 @@
   ],
   "files": [
     "src",
-    "test"
+    "test",
+    "index.d.ts"
   ],
   "author": "plainheart",
   "license": "MIT",
