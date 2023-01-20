@@ -3,6 +3,7 @@
   "version": "2.7.0",
   "description": "A simple and free API for Bing Translator for Node.js",
   "main": "src/index.js",
+  "typings": "index.d.ts",
   "scripts": {
     "test": "node test/index.js && node test/lang.js",
     "gen:langmap": "node scripts/generate-lang-map.js"
