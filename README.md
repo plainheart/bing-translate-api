@@ -30,15 +30,22 @@ Translation result
 
 ```js
 {
+  // original text
   "text": "你好",
+  // user-specified language code
   "userLang": "auto-detect",
+  // translated text
   "translation": "Hello",
   // `correctedText` is returned only when `correct` is set as `true`
   // supported since v1.1.0
   "correctedText": "",
+  // detected language
   "language": {
+    // language code of translated text
     "to": "en",
+    // detected language code of original text
     "from": "zh-Hans",
+    // score of language detection
     // supported since v1.1.0
     "score": 1
   }

@@ -29,6 +29,9 @@ const LANGS_CORRECTABLE = [
   'zh-Hans'
 ]
 
+/**
+ * @param {string} lang
+ */
 function getLangCode(lang) {
   if (!lang || typeof lang !== 'string') {
     return
@@ -50,13 +53,18 @@ function getLangCode(lang) {
   }
 }
 
+/**
+ * @param {string} lang
+ */
 function isSupported(lang) {
   return !!getLangCode(lang)
 }
 
+/**
+ * @param {string} lang
+ */
 function isCorrectable(lang) {
-  const langCode = getLangCode(lang)
-  return langCode && LANGS_CORRECTABLE.indexOf(langCode) > -1
+  return LANGS_CORRECTABLE.includes(getLangCode(lang))
 }
 
 module.exports = {
