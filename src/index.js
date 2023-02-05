@@ -2,6 +2,8 @@
  * @type {import('got').Got}
  */
 const got = require('got')
+const ip = require('ip')
+const randomip = require('random-ip')
 
 const lang = require('./lang')
 
@@ -19,6 +21,14 @@ const MAX_CORRECT_TEXT_LEN = 50
 
 let globalConfig
 let globalConfigPromise
+
+function generateRandomIp() {
+  let addr = randomip('0.0.0.0')
+  while(ip.isPrivate(addr)) {
+    addr = randomip('0.0.0.0')
+  }
+  return addr
+}
 
 function replaceSubdomain(url, subdomain) {
   return url.replace('{s}', subdomain ? subdomain + '.' : '')
@@ -40,8 +50,9 @@ function isTokenExpired() {
  * fetch global config including `IG`, `IID`, `token`, `key`, `tokenTs`, `tokenExpiryInterval` and `cookie`
  * @param {string} userAgent
  * @param {import('got').Agents} proxyAgents
+ * @param {boolean} ipProxy
  */
-async function fetchGlobalConfig(userAgent, proxyAgents) {
+async function fetchGlobalConfig(userAgent, proxyAgents, ipProxy) {
   let subdomain
   let IG
   let IID
@@ -50,10 +61,16 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
   let tokenExpiryInterval
   let cookie
   try {
+    const requestHeaders = {
+      'user-agent': userAgent || USER_AGENT
+    }
+
+    if (ipProxy) {
+      requestHeaders['CLIENT-IP'] = requestHeaders['X-FORWARDED-FOR'] = generateRandomIp()
+    }
+
     const { body, headers, request: { redirects } } = await got(replaceSubdomain(TRANSLATE_WEBSITE, subdomain), {
-      headers: {
-        'user-agent': userAgent || USER_AGENT
-      },
+      headers: requestHeaders,
       agent: proxyAgents
     })
 
@@ -118,8 +135,9 @@ function makeRequestBody(isSpellCheck, text, fromLang, toLang) {
  * @param {boolean} raw <optional> the result contains raw response if `true`
  * @param {string} userAgent <optional> the expected user agent header
  * @param {import('got').Agents} proxyAgents <optional> set agents of `got` for proxy
+ * @param {boolean} ipProxy <optional> the ip will random in header if `true`
  */
-async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
+async function translate(text, from, to, correct, raw, userAgent, proxyAgents, ipProxy) {
   if (!text || !(text = text.trim())) {
     return
   }
@@ -129,13 +147,13 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
   }
 
   if (!globalConfigPromise) {
-    globalConfigPromise = fetchGlobalConfig(userAgent, proxyAgents)
+    globalConfigPromise = fetchGlobalConfig(userAgent, proxyAgents, ipProxy)
   }
 
   await globalConfigPromise
 
   if (isTokenExpired()) {
-    globalConfigPromise = fetchGlobalConfig(userAgent, proxyAgents)
+    globalConfigPromise = fetchGlobalConfig(userAgent, proxyAgents, ipProxy)
 
     await globalConfigPromise
   }
@@ -160,6 +178,10 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
     'user-agent': userAgent || USER_AGENT,
     referer: replaceSubdomain(TRANSLATE_WEBSITE, globalConfig.subdomain),
     cookie: globalConfig.cookie
+  }
+
+  if (ipProxy) {
+    requestHeaders['CLIENT-IP'] = requestHeaders['X-FORWARDED-FOR'] = generateRandomIp()
   }
 
   const { body } = await got.post(requestURL, {
