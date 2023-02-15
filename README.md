@@ -66,12 +66,14 @@ The text to be translated, can't be blank. The **maximum** text length is **1000
 Type: `string` Default: `auto-detect`
 
 The language code of source text.
+
 **MUST** be `auto-detect` or one of the codes/names (not case sensitive) contained in [lang.json](https://github.com/plainheart/bing-translate-api/blob/master/src/lang.json)
 
 ##### _to_
 Type: `string` Default: `en`
 
 The language in which the text should be translated.
+
 **MUST** be one of the codes/names (not case sensitive) contained in [lang.json](https://github.com/plainheart/bing-translate-api/blob/master/src/lang.json).
 
 ##### _correct_
@@ -95,7 +97,7 @@ The header value of `user-agent` used in API requests.
 
 Default:
 ```
-Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36
 ```
 
 ##### _proxyAgents_
