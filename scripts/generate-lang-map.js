@@ -16,7 +16,7 @@ const path = require('node:path')
     option = $(options[i])
     langMap[option.attr('value')] = option.text().trim()
   }
-  console.log('Generated language map', langMap)
+  console.log('✔️ Generated language map', langMap)
   fs.writeFileSync(
     path.resolve(__dirname, '../src/lang.json'),
     JSON.stringify(langMap, null, 2),
@@ -24,17 +24,5 @@ const path = require('node:path')
   )
 
   // update ts definition
-  const { LANGS } = require('../src/lang')
-  const typingsTpl = fs.readFileSync(path.resolve(__dirname, './index.tpl.d.ts'), 'utf-8')
-  fs.writeFileSync(
-    path.resolve(__dirname, '../index.d.ts'),
-    '// AUTO-GENERATED. SEE scripts/index.tpl.d.ts FOR ORIGINAL TYPINGS\n\n' +
-    typingsTpl.replace(
-      '__LANG_MAP__',
-      JSON.stringify(LANGS, null, 4)
-        .replace('}', `${' '.repeat(2)}}`)
-        .replace(/"/g, '\'')
-      ),
-    { charset: 'utf-8' }
-  )
+  require('./generate-dts')
 })()
