@@ -8,7 +8,7 @@ const lang = require('./lang')
 const TRANSLATE_API_ROOT = 'https://{s}bing.com'
 const TRANSLATE_WEBSITE = TRANSLATE_API_ROOT + '/translator'
 const TRANSLATE_API = TRANSLATE_API_ROOT + '/ttranslatev3?isVertical=1'
-const TRANSLATE_SPELL_CHECK_API = TRANSLATE_API_ROOT + '/tspellcheckv3?isVertical=1'
+const TRANSLATE_API_SPELL_CHECK = TRANSLATE_API_ROOT + '/tspellcheckv3?isVertical=1'
 
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
 
@@ -17,7 +17,31 @@ const MAX_TEXT_LEN = 1000
 // PENDING
 const MAX_CORRECT_TEXT_LEN = 50
 
+/**
+ * @typedef {{
+ *  IG: string,
+ *  IID: string,
+ *  subdomain?: string,
+ *  cookie: string,
+ *  key: number,
+ *  token: string,
+ *  tokenTs: number,
+ *  tokenExpiryInterval: number,
+ *  count: number
+ * }} GlobalConfig
+ *
+ * @typedef {import('../index').TranslationResult} TranslationResult
+ *
+ * @typedef {import('got').Agents} GotAgents
+ */
+
+/**
+ * @type {GlobalConfig | undefined}
+ */
 let globalConfig
+/**
+ * @type {Promise<GlobalConfig> | undefined}
+ */
 let globalConfigPromise
 
 function replaceSubdomain(url, subdomain) {
@@ -37,61 +61,76 @@ function isTokenExpired() {
 }
 
 /**
- * fetch global config including `IG`, `IID`, `token`, `key`, `tokenTs`, `tokenExpiryInterval` and `cookie`
+ * fetch global config
+ *
  * @param {string} userAgent
- * @param {import('got').Agents} proxyAgents
+ * @param {GotAgents} proxyAgents
+ *
+ * @returns {Promise<GlobalConfig>}
  */
 async function fetchGlobalConfig(userAgent, proxyAgents) {
-  let subdomain
-  let IG
-  let IID
-  let token
-  let key
-  let tokenExpiryInterval
-  let cookie
-  try {
-    const { body, headers, request: { redirects } } = await got(replaceSubdomain(TRANSLATE_WEBSITE, subdomain), {
-      headers: {
-        'user-agent': userAgent || USER_AGENT
-      },
-      agent: proxyAgents
-    })
+  // use last subdomain if exists
+  let subdomain = globalConfig && globalConfig.subdomain
 
-    subdomain = redirects[0].match(/^https?:\/\/(\w+)\.bing\.com/)[1]
+  try {
+    const { body, headers, request: { redirects: [redirectUrl] } } = await got(
+      replaceSubdomain(TRANSLATE_WEBSITE, subdomain),
+      {
+        headers: {
+          'user-agent': userAgent || USER_AGENT
+        },
+        agent: proxyAgents
+      }
+    )
+
+    // when fetching for the second time, the subdomain may be unchanged
+    if (redirectUrl) {
+      subdomain = redirectUrl.match(/^https?:\/\/(\w+)\.bing\.com/)[1]
+    }
 
     // PENDING: optional?
-    cookie = headers['set-cookie'].map(c => c.split(';')[0]).join('; ')
+    const cookie = headers['set-cookie'].map(c => c.split(';')[0]).join('; ')
 
-    IG = body.match(/IG:"([^"]+)"/)[1]
-    IID = body.match(/data-iid="([^"]+)"/)[1]
+    const IG = body.match(/IG:"([^"]+)"/)[1]
+    const IID = body.match(/data-iid="([^"]+)"/)[1]
 
-    // required
-    ;[key, token, tokenExpiryInterval] = JSON.parse(
+    const [key, token, tokenExpiryInterval] = JSON.parse(
       body.match(/params_AbusePreventionHelper\s?=\s?([^\]]+\])/)[1]
     )
+
+    const requiredFields = {
+      IG,
+      IID,
+      key,
+      token,
+      tokenTs: key,
+      tokenExpiryInterval
+    }
+    // check required fields
+    Object.entries(requiredFields).forEach(([field, value]) => {
+      if (!value) {
+        throw new Error(`failed to fetch required field: \`${field}\``)
+      }
+    })
+
+    return globalConfig = {
+      ...requiredFields,
+      subdomain,
+      cookie,
+      // PENDING: reset count when value is large?
+      count: 0
+    }
   } catch (e) {
     console.error('failed to fetch global config', e)
     throw e
-  }
-  return globalConfig = {
-    subdomain,
-    IG,
-    IID,
-    key,
-    token,
-    tokenTs: key,
-    tokenExpiryInterval,
-    cookie,
-    // PENDING: reset count if count value is large?
-    count: 0
   }
 }
 
 function makeRequestURL(isSpellCheck) {
   const { IG, IID, subdomain } = globalConfig
-  return replaceSubdomain(isSpellCheck ? TRANSLATE_SPELL_CHECK_API : TRANSLATE_API, subdomain)
-    + (IG && IG.length ? '&IG=' + IG : '')
-    + (IID && IID.length ? '&IID=' + IID + '.' + (++globalConfig.count) : '')
+  return replaceSubdomain(isSpellCheck ? TRANSLATE_API_SPELL_CHECK : TRANSLATE_API, subdomain)
+    + '&IG=' + IG
+    + '&IID=' + (IID + '.' + (++globalConfig.count))
 }
 
 function makeRequestBody(isSpellCheck, text, fromLang, toLang) {
@@ -112,12 +151,14 @@ function makeRequestBody(isSpellCheck, text, fromLang, toLang) {
  * To translate
  *
  * @param {string} text content to be translated
- * @param {string} from <optional> source language code. `auto-detect` by default.
- * @param {string} to <optional> target language code. `en` by default.
+ * @param {string} from source language code. `auto-detect` by default.
+ * @param {string} to target language code. `en` by default.
  * @param {boolean} correct <optional> whether to correct the input text. `false` by default.
  * @param {boolean} raw <optional> the result contains raw response if `true`
  * @param {string} userAgent <optional> the expected user agent header
- * @param {import('got').Agents} proxyAgents <optional> set agents of `got` for proxy
+ * @param {GotAgents} proxyAgents <optional> set agents of `got` for proxy
+ *
+ * @returns {Promise<TranslationResult>}
  */
 async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
   if (!text || !(text = text.trim())) {
@@ -192,6 +233,9 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
   const translation = body[0].translations[0]
   const detectedLang = body[0].detectedLanguage
 
+  /**
+   * @type {TranslationResult}
+   */
   const res = {
     text,
     userLang: from,
