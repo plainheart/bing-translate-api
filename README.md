@@ -112,3 +112,6 @@ MIT &copy; 2021-2023 [plainheart](https://github.com/plainheart).
 ## Thanks
 
 Great thanks to [Bing Translator](https://bing.com/translator) for providing so excellent translation service.
+
+## Related projects
+- [Capacitor Bing Translator](https://github.com/sabereen/capacitor-bing-translator) - A fork of this project that works in [Capacitor](https://capacitorjs.com).
