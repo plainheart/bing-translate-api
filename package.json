@@ -33,10 +33,11 @@
     "url": "https://github.com/plainheart/bing-translate-api/issues"
   },
   "homepage": "https://github.com/plainheart/bing-translate-api#readme",
-  "dependencies": {
-    "got": "^11.8.6"
-  },
   "devDependencies": {
+    "@capacitor/core": "^5.5.0",
     "cheerio": "^1.0.0-rc.12"
+  },
+  "peerDependencies": {
+    "@capacitor/core": ">=4.0.0"
   }
 }
