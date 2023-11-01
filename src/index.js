@@ -153,10 +153,10 @@ function makeRequestBody(isSpellCheck, text, fromLang, toLang) {
  * @param {string} text content to be translated
  * @param {string} from source language code. `auto-detect` by default.
  * @param {string} to target language code. `en` by default.
- * @param {boolean} correct <optional> whether to correct the input text. `false` by default.
- * @param {boolean} raw <optional> the result contains raw response if `true`
- * @param {string} userAgent <optional> the expected user agent header
- * @param {GotAgents} proxyAgents <optional> set agents of `got` for proxy
+ * @param {boolean} [correct] <optional> whether to correct the input text. `false` by default.
+ * @param {boolean} [raw] <optional> the result contains raw response if `true`
+ * @param {string} [userAgent] <optional> the expected user agent header
+ * @param {GotAgents} [proxyAgents] <optional> set agents of `got` for proxy
  *
  * @returns {Promise<TranslationResult>}
  */
