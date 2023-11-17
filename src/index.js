@@ -17,6 +17,9 @@ const MAX_TEXT_LEN = 1000
 // PENDING
 const MAX_CORRECT_TEXT_LEN = 50
 
+// PENDING: make it configurable?
+const MAX_RETRY_COUNT = 3
+
 /**
  * @typedef {{
  *  IG: string,
@@ -79,7 +82,11 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
         headers: {
           'user-agent': userAgent || USER_AGENT
         },
-        agent: proxyAgents
+        agent: proxyAgents,
+        retry: {
+          limit: MAX_RETRY_COUNT,
+          methods: ['GET']
+        }
       }
     )
 
@@ -126,13 +133,30 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
   }
 }
 
+/**
+ * @param {boolean} isSpellCheck
+ */
 function makeRequestURL(isSpellCheck) {
   const { IG, IID, subdomain } = globalConfig
   return replaceSubdomain(isSpellCheck ? TRANSLATE_API_SPELL_CHECK : TRANSLATE_API, subdomain)
     + '&IG=' + IG
-    + '&IID=' + (IID + '.' + (++globalConfig.count))
+    + '&IID=' + (IID + (isSpellCheck ? '.' + (++globalConfig.count) : ''))
 }
 
+/**
+ * @param {boolean} isSpellCheck
+ * @param {string} text
+ * @param {string} fromLang
+ * @param {string} toLang
+ * @returns {{
+ *   fromLang: string,
+ *   to?: string,
+ *   text: string,
+ *   token: string,
+ *   key: number,
+ *   tryFetchingGenderDebiasedTranslations?: true
+ * }}
+ */
 function makeRequestBody(isSpellCheck, text, fromLang, toLang) {
   const { token, key } = globalConfig
   const body = {
@@ -141,8 +165,10 @@ function makeRequestBody(isSpellCheck, text, fromLang, toLang) {
     token,
     key
   }
-  if (!isSpellCheck && toLang) {
-    body.to = toLang
+  if (!isSpellCheck) {
+    toLang && (body.to = toLang)
+
+    body.tryFetchingGenderDebiasedTranslations = true
   }
   return body
 }
@@ -203,12 +229,21 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
     cookie: globalConfig.cookie
   }
 
+  /**
+   * @type {import('got').Options['retry']}
+   */
+  const retryConfig = {
+    limit: MAX_RETRY_COUNT,
+    methods: ['POST']
+  }
+
   const { body } = await got.post(requestURL, {
     headers: requestHeaders,
     // got will set CONTENT_TYPE as `application/x-www-form-urlencoded`
     form: requestBody,
     responseType: 'json',
-    agent: proxyAgents
+    agent: proxyAgents,
+    retry: retryConfig
   })
 
   if (body.ShowCaptcha) {
@@ -262,7 +297,8 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
         headers: requestHeaders,
         form: requestBody,
         responseType: 'json',
-        agent: proxyAgents
+        agent: proxyAgents,
+        retry: retryConfig
       })
 
       res.correctedText = body && body.correctedText
