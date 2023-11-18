@@ -209,7 +209,7 @@ async function wrapRequest(request) {
   }
 
   if (readableErrMsg) {
-    const responseMsg = `Response URL: ${response.url}\nResponse status: ${response.statusCode} (${response.statusMessage})\nResponse body  : ${JSON.stringify(body)}`
+    const responseMsg = `Response status: ${response.statusCode} (${response.statusMessage})\nResponse body  : ${JSON.stringify(body)}`
     throw new Error(readableErrMsg + '\n' + responseMsg)
   }
 
