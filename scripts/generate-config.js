@@ -8,7 +8,8 @@ const DEFAULT_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKi
 ;(async () => {
   const { body } = await got('https://bing.com/translator', {
     headers: {
-      'Accept-Language': 'en-US,en'
+      'Accept-Language': 'en-US,en',
+      'User-Agent': DEFAULT_USER_AGENT
     }
   })
 

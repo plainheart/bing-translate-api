@@ -48,7 +48,6 @@ function isCorrectable(lang) {
 
 module.exports = {
   LANGS,
-  LANGS_CORRECTABLE,
   getLangCode,
   isSupported,
   isCorrectable
