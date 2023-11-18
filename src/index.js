@@ -157,8 +157,7 @@ function makeRequestBody(isSpellCheck, text, fromLang, toLang) {
     fromLang,
     text,
     token,
-    key,
-    edgepdftranslator: 1
+    key
   }
   if (!isSpellCheck) {
     toLang && (body.to = toLang)
