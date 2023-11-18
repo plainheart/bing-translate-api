@@ -1,5 +1,4 @@
 const { lang } = require('../src/index')
-// const lang = require('../src/lang')
 
 console.log('en supported:', lang.isSupported('en'))
 console.log('en1 supported:', lang.isSupported('en1'))

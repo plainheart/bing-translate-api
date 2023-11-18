@@ -6,8 +6,7 @@
   "typings": "index.d.ts",
   "scripts": {
     "test": "node test/index.js && node test/lang.js",
-    "gen:langmap": "node scripts/generate-lang-map.js",
-    "gen:dts": "node scripts/generate-dts.js"
+    "gen:config": "node scripts/generate-config.js"
   },
   "keywords": [
     "bing",

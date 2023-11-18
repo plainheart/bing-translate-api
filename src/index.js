@@ -4,18 +4,12 @@
 const got = require('got')
 
 const lang = require('./lang')
+const config = require('./config.json')
 
 const TRANSLATE_API_ROOT = 'https://{s}bing.com'
-const TRANSLATE_WEBSITE = TRANSLATE_API_ROOT + '/translator'
-const TRANSLATE_API = TRANSLATE_API_ROOT + '/ttranslatev3?isVertical=1'
-const TRANSLATE_API_SPELL_CHECK = TRANSLATE_API_ROOT + '/tspellcheckv3?isVertical=1'
-
-const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36'
-
-// PENDING: fetch from `params_RichTranslate`?
-const MAX_TEXT_LEN = 1000
-// PENDING
-const MAX_CORRECT_TEXT_LEN = 50
+const TRANSLATE_WEBSITE = TRANSLATE_API_ROOT + config.websiteEndpoint
+const TRANSLATE_API = TRANSLATE_API_ROOT + config.translateEndpoint
+const TRANSLATE_API_SPELL_CHECK = TRANSLATE_API_ROOT + config.spellCheckEndpoint
 
 // PENDING: make it configurable?
 const MAX_RETRY_COUNT = 3
@@ -80,7 +74,7 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
       replaceSubdomain(TRANSLATE_WEBSITE, subdomain),
       {
         headers: {
-          'user-agent': userAgent || USER_AGENT
+          'user-agent': userAgent || config.userAgent
         },
         agent: proxyAgents,
         retry: {
@@ -163,7 +157,8 @@ function makeRequestBody(isSpellCheck, text, fromLang, toLang) {
     fromLang,
     text,
     token,
-    key
+    key,
+    edgepdftranslator: 1
   }
   if (!isSpellCheck) {
     toLang && (body.to = toLang)
@@ -191,8 +186,8 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
     return
   }
 
-  if (text.length > MAX_TEXT_LEN) {
-    throw new Error(`The supported maximum length of text is ${MAX_TEXT_LEN}. Please shorten the text.`)
+  if (text.length > config.maxTextLen) {
+    throw new Error(`The supported maximum length of text is ${config.maxTextLen}. Please shorten the text.`)
   }
 
   if (!globalConfigPromise) {
@@ -224,7 +219,7 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
   const requestBody = makeRequestBody(false, text, from, to === 'auto-detect' ? 'en' : to)
 
   const requestHeaders = {
-    'user-agent': userAgent || USER_AGENT,
+    'user-agent': userAgent || config.userAgent,
     referer: replaceSubdomain(TRANSLATE_WEBSITE, globalConfig.subdomain),
     cookie: globalConfig.cookie
   }
@@ -289,7 +284,7 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
     // currently, there is a limit of 50 characters for correction service
     // and only parts of languages are supported
     // otherwise, it will return status code 400
-    if (len <= MAX_CORRECT_TEXT_LEN && lang.isCorrectable(correctLang)) {
+    if (len <= config.maxCorrectableTextLen && lang.isCorrectable(correctLang)) {
       const requestURL = makeRequestURL(true)
       const requestBody = makeRequestBody(true, text, correctLang)
 
@@ -304,7 +299,7 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
       res.correctedText = body && body.correctedText
     }
     else {
-      console.warn(`The detected language '${correctLang}' is not supported to be corrected or the length of text is more than ${MAX_CORRECT_TEXT_LEN}.`)
+      console.warn(`The detected language '${correctLang}' is not supported to be corrected or the length of text is more than ${config.maxCorrectableTextLen}.`)
     }
   }
 

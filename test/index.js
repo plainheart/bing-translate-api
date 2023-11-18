@@ -1,17 +1,19 @@
 const { translate } = require('../src/index')
+const { maxTextLen, maxCorrectableTextLen } = require('../src/config.json')
 
 function printRes(res) {
-  console.log(res.text, '----->', res.translation, 'fromLang', res.language.from)
+  console.log(res.text, '---->', res.translation, 'fromLang', res.language.from)
   console.log()
 }
 
 function printCorrectRes(res) {
-  console.log(res.text, '----->', res.correctedText)
+  console.log(res.text, '---->', res.correctedText)
   console.log()
 }
 
 function onErr(e, notExit) {
   console.error(e)
+  console.log()
   notExit || process.exit(1)
 }
 
@@ -56,11 +58,11 @@ translate('Bore da', null, 'en', true)
 .catch(onErr)
 
 // correct long text -> return `undefined` for exceeding max length
-translate('this text is very long this text is very long this text is very long this text is very long this text is very long this text is very long ', null, 'en', true)
+translate(new Array(maxCorrectableTextLen + 1).fill('0').join(''), null, 'en', true)
 .then(printCorrectRes)
 .catch(onErr)
 
 // max text len -> return `undefined` for exceeding max length
-translate(new Array(1001).fill('0').join(''), null, 'en')
+translate(new Array(maxTextLen + 1).fill('0').join(''), null, 'en')
 .then(printRes)
 .catch(e => onErr(e, true))

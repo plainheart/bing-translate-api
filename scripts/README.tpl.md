@@ -1,5 +1,3 @@
-<!-- AUTO-GENERATED. SEE scripts/README.tpl.md FOR ORIGINAL TEMPLATE -->
-
 # bing-translate-api
 [![NPM version](https://img.shields.io/npm/v/bing-translate-api.svg?style=flat)](https://www.npmjs.org/package/bing-translate-api)
 [![Auto Test](https://github.com/plainheart/bing-translate-api/actions/workflows/autotest.yml/badge.svg)](https://github.com/plainheart/bing-translate-api/actions/workflows/autotest.yml)
@@ -61,7 +59,7 @@ Translation result
 #### _text_
 Type: `string`
 
-The text to be translated, can't be blank. The **maximum** text length is **5000**.
+The text to be translated, can't be blank. The **maximum** text length is **{{maxTextLen}}**.
 
 ##### _from_
 Type: `string` Default: `auto-detect`
@@ -83,7 +81,7 @@ Type: `boolean` Default: `false` Since: `v1.1.0`
 Whether to correct the input text.
 
 Note that:
-1) There is currently a **limit** of **50 characters** for correction service.
+1) There is currently a **limit** of **{{maxCorrectableTextLen}} characters** for correction service.
 2) **Only** [the languages in the list](src/config.json#L7-L28) are supported to be corrected.
 
 ##### _raw_
@@ -98,7 +96,7 @@ The header value of `user-agent` used in API requests.
 
 Default:
 ```
-Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36
+{{userAgent}}
 ```
 
 ##### _proxyAgents_

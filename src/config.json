@@ -1,0 +1,30 @@
+{
+  "websiteEndpoint": "/translator",
+  "translateEndpoint": "/ttranslatev3?isVertical=1&",
+  "spellCheckEndpoint": "/tspellcheckv3?isVertical=1&",
+  "maxTextLen": 5000,
+  "maxCorrectableTextLen": 50,
+  "correctableLangs": [
+    "da",
+    "en",
+    "nl",
+    "fi",
+    "fr",
+    "fr-CA",
+    "de",
+    "it",
+    "ja",
+    "ko",
+    "no",
+    "pl",
+    "pt",
+    "pt-PT",
+    "ru",
+    "es",
+    "sv",
+    "tr",
+    "zh-Hant",
+    "zh-Hans"
+  ],
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
+}

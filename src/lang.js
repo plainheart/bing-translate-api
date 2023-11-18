@@ -6,28 +6,7 @@ const LANGS = {
   ...require('./lang.json')
 }
 
-const LANGS_CORRECTABLE = [
-  'da',
-  'en',
-  'nl',
-  'fi',
-  'fr',
-  'fr-CA',
-  'de',
-  'it',
-  'ja',
-  'ko',
-  'no',
-  'pl',
-  'pt',
-  'pt-PT',
-  'ru',
-  'es',
-  'sv',
-  'tr',
-  'zh-Hant',
-  'zh-Hans'
-]
+const { correctableLangs: LANGS_CORRECTABLE } = require('./config.json')
 
 /**
  * @param {string} lang
@@ -69,6 +48,7 @@ function isCorrectable(lang) {
 
 module.exports = {
   LANGS,
+  LANGS_CORRECTABLE,
   getLangCode,
   isSupported,
   isCorrectable
