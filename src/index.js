@@ -1,20 +1,4 @@
 /**
- * @type {import('got').Got}
- */
-const got = require('got')
-
-const lang = require('./lang')
-const config = require('./config.json')
-
-const TRANSLATE_API_ROOT = 'https://{s}bing.com'
-const TRANSLATE_WEBSITE = TRANSLATE_API_ROOT + config.websiteEndpoint
-const TRANSLATE_API = TRANSLATE_API_ROOT + config.translateEndpoint
-const TRANSLATE_API_SPELL_CHECK = TRANSLATE_API_ROOT + config.spellCheckEndpoint
-
-// PENDING: make it configurable?
-const MAX_RETRY_COUNT = 3
-
-/**
  * @typedef {{
  *  IG: string,
  *  IID: string,
@@ -28,9 +12,30 @@ const MAX_RETRY_COUNT = 3
  * }} GlobalConfig
  *
  * @typedef {import('../index').TranslationResult} TranslationResult
- *
+
+ * @typedef {import('got').Got} Got
+ * @typedef {import('got').Options} GotOptions
  * @typedef {import('got').Agents} GotAgents
+ * @typedef {import('got').CancelableRequest} GotCancelableRequest
+ * @typedef {import('got').Response} GotResponse
+ * @typedef {import('got').RequestError} GotRequestError
  */
+
+/**
+ * @type {Got}
+ */
+const got = require('got')
+
+const lang = require('./lang')
+const config = require('./config.json')
+
+const TRANSLATE_API_ROOT = 'https://{s}bing.com'
+const TRANSLATE_WEBSITE = TRANSLATE_API_ROOT + config.websiteEndpoint
+const TRANSLATE_API = TRANSLATE_API_ROOT + config.translateEndpoint
+const TRANSLATE_API_SPELL_CHECK = TRANSLATE_API_ROOT + config.spellCheckEndpoint
+
+// PENDING: make it configurable?
+const MAX_RETRY_COUNT = 3
 
 /**
  * @type {GlobalConfig | undefined}
@@ -60,8 +65,8 @@ function isTokenExpired() {
 /**
  * fetch global config
  *
- * @param {string} userAgent
- * @param {GotAgents} proxyAgents
+ * @param {string?} [userAgent]
+ * @param {GotAgents?} [proxyAgents]
  *
  * @returns {Promise<GlobalConfig>}
  */
@@ -168,6 +173,56 @@ function makeRequestBody(isSpellCheck, text, fromLang, toLang) {
 }
 
 /**
+ * @param {GotCancelableRequest} request
+ */
+async function wrapRequest(request) {
+  /**
+   * @type {GotResponse}
+   */
+  let response
+  /**
+   * @type {GotRequestError}
+   */
+  let err
+
+  try {
+    response = await request
+  } catch (e) {
+    response = (err = e).response
+  }
+
+  /**
+   * @type {string}
+   */
+  let readableErrMsg
+
+  const body = response.body
+
+  if (body.ShowCaptcha) {
+    readableErrMsg = `Sorry that bing translator seems to be asking for the captcha, please take care not to request too frequently.`
+  }
+  else if (body.StatusCode === 401 || response.statusCode === 401) {
+    readableErrMsg = `Translation limit exceeded. Please try it again later.`
+  }
+  else if (body.statusCode) {
+    readableErrMsg = `Something went wrong!`
+  }
+
+  if (readableErrMsg) {
+    const responseMsg = `Response URL: ${response.url}\nResponse status: ${response.statusCode} (${response.statusMessage})\nResponse body  : ${JSON.stringify(body)}`
+    throw new Error(readableErrMsg + '\n' + responseMsg)
+  }
+
+  if (err) {
+    const wrappedErr = new Error(`Failed to request translation service`)
+    wrappedErr.stack += '\n' + err.stack
+    throw wrappedErr
+  }
+
+  return body
+}
+
+/**
  * To translate
  *
  * @param {string} text content to be translated
@@ -224,40 +279,23 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
   }
 
   /**
-   * @type {import('got').Options['retry']}
+   * @type {GotOptions['retry']}
    */
   const retryConfig = {
     limit: MAX_RETRY_COUNT,
     methods: ['POST']
   }
 
-  const { body } = await got.post(requestURL, {
-    headers: requestHeaders,
-    // got will set CONTENT_TYPE as `application/x-www-form-urlencoded`
-    form: requestBody,
-    responseType: 'json',
-    agent: proxyAgents,
-    retry: retryConfig
-  })
-
-  if (body.ShowCaptcha) {
-    throw new Error(`
-      Sorry that bing translator seems to be asking for the captcha,
-      Please take care not to request too frequently.
-      The response code is ${body.StatusCode}.
-    `)
-  }
-
-  if (body.StatusCode === 401) {
-    throw new Error(`
-      Max count of translation exceeded. Please try it again later.
-      The response code is 401.
-    `)
-  }
-
-  if (body.statusCode) {
-    throw new Error(`Something went wrong! The response is ${JSON.stringify(body)}.`)
-  }
+  const body = await wrapRequest(
+    got.post(requestURL, {
+      headers: requestHeaders,
+      // got will set CONTENT_TYPE as `application/x-www-form-urlencoded`$
+      form: requestBody,
+      responseType: 'json',
+      agent: proxyAgents,
+      retry: retryConfig
+    })
+  )
 
   const translation = body[0].translations[0]
   const detectedLang = body[0].detectedLanguage
@@ -287,13 +325,15 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
       const requestURL = makeRequestURL(true)
       const requestBody = makeRequestBody(true, text, correctLang)
 
-      const { body } = await got.post(requestURL, {
-        headers: requestHeaders,
-        form: requestBody,
-        responseType: 'json',
-        agent: proxyAgents,
-        retry: retryConfig
-      })
+      const body = await wrapRequest(
+        got.post(requestURL, {
+          headers: requestHeaders,
+          form: requestBody,
+          responseType: 'json',
+          agent: proxyAgents,
+          retry: retryConfig
+        })
+      )
 
       res.correctedText = body && body.correctedText
     }
