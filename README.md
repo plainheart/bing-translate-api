@@ -116,3 +116,4 @@ Great thanks to [Bing Translator](https://bing.com/translator) for providing so 
 
 ## Related projects
 - [Capacitor Bing Translator](https://github.com/sabereen/capacitor-bing-translator) - A fork of this project that works in [Capacitor](https://capacitorjs.com).
+- [bing-translate-api java implemented](https://github.com/marmot-z/bing-translate-api-java) - Bing translate api implemented in java.
