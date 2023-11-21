@@ -289,7 +289,7 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
   const body = await wrapRequest(
     got.post(requestURL, {
       headers: requestHeaders,
-      // got will set CONTENT_TYPE as `application/x-www-form-urlencoded`$
+      // got will set CONTENT_TYPE as `application/x-www-form-urlencoded`
       form: requestBody,
       responseType: 'json',
       agent: proxyAgents,
