@@ -15,7 +15,7 @@ const DEFAULT_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKi
 
   // fetch config
   const richTranslateParams = JSON.parse(
-    body.match(/params_RichTranslate\s?=\s?([^;]+);/)[1]
+    body.match(/params_RichTranslate\s?=\s?([^;]+);/)[1].replace(/,]$/, ']')
   )
   const config = {
     websiteEndpoint: richTranslateParams[1],
