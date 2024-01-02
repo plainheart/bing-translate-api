@@ -25,7 +25,6 @@ const DEFAULT_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKi
     body.match(/params_RichTranslate\s?=\s?([^;]+);/)[1].replace(/,]$/, ']')
   )
 
-
   const { body } = await got('https://bing.com/translator', {
     headers: {
       'Accept-Language': 'en-US,en',
@@ -75,9 +74,4 @@ const DEFAULT_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKi
 
   // update ts definition
   require('./generate-dts')
-
-  console.log()
-
-  // generate README
-  require('./generate-readme')
 })()
