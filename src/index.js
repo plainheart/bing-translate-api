@@ -3,7 +3,6 @@
  *  IG: string,
  *  IID: string,
  *  subdomain?: string,
- *  cookie: string,
  *  key: number,
  *  token: string,
  *  tokenTs: number,
@@ -94,9 +93,6 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
       subdomain = redirectUrl.match(/^https?:\/\/(\w+)\.bing\.com/)[1]
     }
 
-    // PENDING: optional?
-    const cookie = headers['set-cookie'].map(c => c.split(';')[0]).join('; ')
-
     const IG = body.match(/IG:"([^"]+)"/)[1]
     const IID = body.match(/data-iid="([^"]+)"/)[1]
 
@@ -122,7 +118,6 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
     return globalConfig = {
       ...requiredFields,
       subdomain,
-      cookie,
       // PENDING: reset count when value is large?
       count: 0
     }
@@ -274,8 +269,7 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
 
   const requestHeaders = {
     'user-agent': userAgent || config.userAgent,
-    referer: replaceSubdomain(TRANSLATE_WEBSITE, globalConfig.subdomain),
-    cookie: globalConfig.cookie
+    referer: replaceSubdomain(TRANSLATE_WEBSITE, globalConfig.subdomain)
   }
 
   /**
