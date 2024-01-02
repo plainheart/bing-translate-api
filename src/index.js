@@ -74,7 +74,7 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
   let subdomain = globalConfig && globalConfig.subdomain
 
   try {
-    const { body, headers, request: { redirects: [redirectUrl] } } = await got(
+    const { body, request: { redirects: [redirectUrl] } } = await got(
       replaceSubdomain(TRANSLATE_WEBSITE, subdomain),
       {
         headers: {
@@ -129,12 +129,21 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
 
 /**
  * @param {boolean} isSpellCheck
+ * @param {boolean} useEPT
  */
-function makeRequestURL(isSpellCheck) {
+function makeRequestURL(isSpellCheck, useEPT) {
   const { IG, IID, subdomain } = globalConfig
   return replaceSubdomain(isSpellCheck ? TRANSLATE_API_SPELL_CHECK : TRANSLATE_API, subdomain)
     + '&IG=' + IG
-    + '&IID=' + (IID + (isSpellCheck ? '.' + (++globalConfig.count) : ''))
+    + '&IID=' + (IID + (isSpellCheck || useEPT ? '.' + (++globalConfig.count) : ''))
+    + (
+      isSpellCheck || !useEPT
+        ? ''
+        // PENDING: might no rate limit but some languages are not supported for now
+        // (See also the `eptLangs` field in src/config.json)
+        : '&ref=TThis' +
+          '&edgepdftranslator=1'
+    )
 }
 
 /**
@@ -264,8 +273,13 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
   from = lang.getLangCode(from)
   to = lang.getLangCode(to)
 
-  const requestURL = makeRequestURL(false)
-  const requestBody = makeRequestBody(false, text, from, to === 'auto-detect' ? 'en' : to)
+  to === 'auto-detect' && (to = 'en')
+
+  const canUseEPT = text.length <= config.maxEPTTextLen
+    && ([from, to].every(lang => lang === 'auto-detect' || config.eptLangs.includes(lang)))
+
+  const requestURL = makeRequestURL(false, canUseEPT)
+  const requestBody = makeRequestBody(false, text, from, to)
 
   const requestHeaders = {
     'user-agent': userAgent || config.userAgent,
@@ -287,7 +301,7 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
       form: requestBody,
       responseType: 'json',
       agent: proxyAgents,
-      retry: retryConfig
+      retry: canUseEPT ? 0 : retryConfig
     })
   )
 

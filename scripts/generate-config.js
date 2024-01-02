@@ -6,6 +6,26 @@ const path = require('node:path')
 const DEFAULT_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0'
 
 ;(async () => {
+  // fetch supported EPT languages
+  const { body: eptBody } = await got('https://bing.com/translator?edgepdftranslator=1', {
+    headers: {
+      'Accept-Language': 'en-US,en',
+      'User-Agent': DEFAULT_USER_AGENT
+    }
+  })
+  let $ = cheerio.load(eptBody)
+  const eptLangOptions = $('#t_tgtAllLang').children('option')
+  const eptLangCodes = []
+  for (let i = 0, len = eptLangOptions.length, option; i < len; i++) {
+    option = $(eptLangOptions[i])
+    eptLangCodes.push(option.attr('value'))
+  }
+
+  const parseRichTranslateParams = (body) => JSON.parse(
+    body.match(/params_RichTranslate\s?=\s?([^;]+);/)[1].replace(/,]$/, ']')
+  )
+
+
   const { body } = await got('https://bing.com/translator', {
     headers: {
       'Accept-Language': 'en-US,en',
@@ -14,16 +34,19 @@ const DEFAULT_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKi
   })
 
   // fetch config
-  const richTranslateParams = JSON.parse(
-    body.match(/params_RichTranslate\s?=\s?([^;]+);/)[1].replace(/,]$/, ']')
-  )
+  const richTranslateParams = parseRichTranslateParams(body)
+  // EPT config
+  const eptRichTranslateParams = parseRichTranslateParams(eptBody)
+
   const config = {
     websiteEndpoint: richTranslateParams[1],
     translateEndpoint: richTranslateParams[0],
     spellCheckEndpoint: richTranslateParams[33],
     maxTextLen: richTranslateParams[5],
     maxCorrectableTextLen: richTranslateParams[30],
+    maxEPTTextLen: eptRichTranslateParams[5],
     correctableLangs: richTranslateParams[31],
+    eptLangs: eptLangCodes,
     userAgent: DEFAULT_USER_AGENT
   }
   fs.writeFileSync(
@@ -34,11 +57,11 @@ const DEFAULT_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKi
   console.log('✔️ Generated config\n', config)
 
   // fetch supported languages
-  const $ = cheerio.load(body)
-  const options = $('#t_tgtAllLang').children('option')
+  $ = cheerio.load(body)
+  const langOptions = $('#t_tgtAllLang').children('option')
   const langMap = {}
-  for (let i = 0, len = options.length, option; i < len; i++) {
-    option = $(options[i])
+  for (let i = 0, len = langOptions.length, option; i < len; i++) {
+    option = $(langOptions[i])
     langMap[option.attr('value')] = option.text().trim()
   }
   fs.writeFileSync(

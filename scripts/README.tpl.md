@@ -61,6 +61,10 @@ Type: `string`
 
 The text to be translated, can't be blank. The **maximum** text length is **{{maxTextLen}}**.
 
+**NOTE:**
+1) Some regions may be still **1000** characters.
+2) In EPT mode (since `v3.0.0`), the maximum text length is currently **{{maxEPTTextLen}}**.
+
 ##### _from_
 Type: `string` Default: `auto-detect`
 
@@ -68,12 +72,16 @@ The language code of source text.
 
 **MUST** be `auto-detect` or one of the codes/names (not case sensitive) contained in [lang.json](src/lang.json)
 
+**NOTE:** The EPT mode (since `v3.0.0`) only supports the languages contained in [src/config.json#eptLangs](src/config.json#30). Any other language will fall back to the legacy mode, in which a 429 (Too Many Requests) error often occurs.
+
 ##### _to_
 Type: `string` Default: `en`
 
 The language in which the text should be translated.
 
 **MUST** be one of the codes/names (not case sensitive) contained in [lang.json](src/lang.json).
+
+**NOTE:** The EPT mode (since `v3.0.0`) only supports the languages contained in [src/config.json#eptLangs](src/config.json#30). Any other language will fall back to the legacy mode, in which a 429 (Too Many Requests) error often occurs.
 
 ##### _correct_
 Type: `boolean` Default: `false` Since: `v1.1.0`
@@ -106,7 +114,7 @@ Set [agents](https://github.com/sindresorhus/got/blob/main/documentation/tips.md
 
 ## License
 
-MIT &copy; 2021-2023 [plainheart](https://github.com/plainheart).
+MIT &copy; 2021-2024 [plainheart](https://github.com/plainheart).
 
 ## Thanks
 

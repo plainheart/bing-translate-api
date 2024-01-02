@@ -1,5 +1,5 @@
 const { translate } = require('../src/index')
-const { maxTextLen, maxCorrectableTextLen } = require('../src/config.json')
+const { maxTextLen, maxCorrectableTextLen, maxEPTTextLen } = require('../src/config.json')
 
 function printRes(res) {
   console.log(res.text, '---->', res.translation, 'fromLang', res.language.from)
@@ -64,5 +64,15 @@ translate(new Array(maxCorrectableTextLen + 1).fill('0').join(''), null, 'en', t
 
 // max text len -> return `undefined` for exceeding max length
 translate(new Array(maxTextLen + 1).fill('0').join(''), null, 'en')
+.then(printRes)
+.catch(e => onErr(e, true))
+
+// max EPT text len -> return `Zero`
+translate(new Array(maxEPTTextLen).fill('0').join(''), null, 'en')
+.then(printRes)
+.catch(e => onErr(e, true))
+
+// max EPT text len -> fall back to non-EPT mode for exceeding max length
+translate(new Array(maxEPTTextLen + 1).fill('0').join(''), null, 'en')
 .then(printRes)
 .catch(e => onErr(e, true))
