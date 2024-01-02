@@ -244,10 +244,6 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
     return
   }
 
-  if (text.length > config.maxTextLen) {
-    throw new Error(`The supported maximum length of text is ${config.maxTextLen}. Please shorten the text.`)
-  }
-
   if (!globalConfigPromise) {
     globalConfigPromise = fetchGlobalConfig(userAgent, proxyAgents)
   }
@@ -258,6 +254,16 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
     globalConfigPromise = fetchGlobalConfig(userAgent, proxyAgents)
 
     await globalConfigPromise
+  }
+
+  // Currently 5000 is supported only in China
+  // PENDING: dynamically re-generate local config.json when initializing?
+  const maxTextLen = globalConfig.subdomain === 'cn'
+    ? config.maxTextLenCN
+    : config.maxTextLen
+
+  if (text.length > maxTextLen) {
+    throw new Error(`The supported maximum length of text is ${maxTextLen}. Please shorten the text.`)
   }
 
   from = from || 'auto-detect'

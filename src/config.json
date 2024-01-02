@@ -2,7 +2,8 @@
   "websiteEndpoint": "/translator",
   "translateEndpoint": "/ttranslatev3?isVertical=1&",
   "spellCheckEndpoint": "/tspellcheckv3?isVertical=1&",
-  "maxTextLen": 5000,
+  "maxTextLen": 1000,
+  "maxTextLenCN": 5000,
   "maxCorrectableTextLen": 50,
   "maxEPTTextLen": 3000,
   "correctableLangs": [

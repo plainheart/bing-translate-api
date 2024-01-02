@@ -61,10 +61,10 @@ Translation result
 #### _text_
 Type: `string`
 
-The text to be translated, can't be blank. The **maximum** text length is **5000**.
+The text to be translated, can't be blank. The **maximum** text length is **1000**.
 
 **NOTE:**
-1) Some regions may be still **1000** characters.
+1) The maximum text length is up to **5000** characters only in **China**.
 2) In EPT mode (since `v3.0.0`), the maximum text length is currently **3000**.
 
 ##### _from_
