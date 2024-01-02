@@ -256,16 +256,6 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
     await globalConfigPromise
   }
 
-  // Currently 5000 is supported only in China
-  // PENDING: dynamically re-generate local config.json when initializing?
-  const maxTextLen = globalConfig.subdomain === 'cn'
-    ? config.maxTextLenCN
-    : config.maxTextLen
-
-  if (text.length > maxTextLen) {
-    throw new Error(`The supported maximum length of text is ${maxTextLen}. Please shorten the text.`)
-  }
-
   from = from || 'auto-detect'
   to = to || 'en'
 
@@ -283,6 +273,18 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
 
   const canUseEPT = text.length <= config.maxEPTTextLen
     && ([from, to].every(lang => lang === 'auto-detect' || config.eptLangs.includes(lang)))
+
+  if (!canUseEPT) {
+    // Currently 5000 is supported only in China
+    // PENDING: dynamically re-generate local config.json when initializing?
+    const maxTextLen = globalConfig.subdomain === 'cn'
+      ? config.maxTextLenCN
+      : config.maxTextLen
+
+    if (text.length > maxTextLen) {
+      throw new Error(`The supported maximum text length is ${maxTextLen}. Please shorten the text.`)
+    }
+  }
 
   const requestURL = makeRequestURL(false, canUseEPT)
   const requestBody = makeRequestBody(false, text, from, to)
