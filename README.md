@@ -74,7 +74,7 @@ The language code of source text.
 
 **MUST** be `auto-detect` or one of the codes/names (not case sensitive) contained in [lang.json](src/lang.json)
 
-**NOTE:** The EPT mode (since `v3.0.0`) only supports the languages contained in [src/config.json#eptLangs](src/config.json#30). Any other language will fall back to the legacy mode, in which a 429 (Too Many Requests) error often occurs.
+**NOTE:** The EPT mode (since `v3.0.0`) only supports the languages contained in [src/config.json#eptLangs](src/config.json#L31). Any other language will fall back to the legacy mode, in which a 429 (Too Many Requests) error often occurs.
 
 ##### _to_
 Type: `string` Default: `en`
@@ -83,7 +83,7 @@ The language in which the text should be translated.
 
 **MUST** be one of the codes/names (not case sensitive) contained in [lang.json](src/lang.json).
 
-**NOTE:** The EPT mode (since `v3.0.0`) only supports the languages contained in [src/config.json#eptLangs](src/config.json#30). Any other language will fall back to the legacy mode, in which a 429 (Too Many Requests) error often occurs.
+**NOTE:** The EPT mode (since `v3.0.0`) only supports the languages contained in [src/config.json#eptLangs](src/config.json#L31). Any other language will fall back to the legacy mode, in which a 429 (Too Many Requests) error often occurs.
 
 ##### _correct_
 Type: `boolean` Default: `false` Since: `v1.1.0`
