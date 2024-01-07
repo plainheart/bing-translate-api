@@ -104,10 +104,7 @@ Type: `string`
 
 The header value of `user-agent` used in API requests. 
 
-Default:
-```
-Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0
-```
+Refer to [src/config.json#userAgent](src/config.json#L111) for the default user agent.
 
 ##### _proxyAgents_
 Type: [`Got['Agents']`](https://github.com/sindresorhus/got/blob/v11.8.6/source/core/index.ts#L60-L64) Default: `undefined` Since: `v2.4.0`
