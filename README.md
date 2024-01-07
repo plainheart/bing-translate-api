@@ -92,7 +92,7 @@ Whether to correct the input text.
 
 Note that:
 1) There is currently a **limit** of **50 characters** for correction service.
-2) **Only** [the languages in the list](src/config.json#L7-L28) are supported to be corrected.
+2) **Only** [the languages in the list](src/config.json#L9-L30) are supported to be corrected.
 
 ##### _raw_
 Type: `boolean` Default: `false`
