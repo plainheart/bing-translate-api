@@ -1,5 +1,3 @@
-<!-- AUTO-GENERATED. SEE scripts/README.tpl.md FOR ORIGINAL TEMPLATE -->
-
 # bing-translate-api
 [![NPM version](https://img.shields.io/npm/v/bing-translate-api.svg?style=flat)](https://www.npmjs.org/package/bing-translate-api)
 [![Auto Test](https://github.com/plainheart/bing-translate-api/actions/workflows/autotest.yml/badge.svg)](https://github.com/plainheart/bing-translate-api/actions/workflows/autotest.yml)
