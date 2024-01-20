@@ -367,5 +367,8 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
 
 module.exports = {
   translate,
-  lang
+  lang,
+  // mount the MET module on the index entry
+  // TODO isolate bing module and Microsoft module
+  MET: require('./met')
 }
