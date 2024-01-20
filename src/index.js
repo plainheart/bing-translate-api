@@ -122,7 +122,7 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
       count: 0
     }
   } catch (e) {
-    console.error('failed to fetch global config', e)
+    console.error('failed to fetch global config')
     throw e
   }
 }
