@@ -1,6 +1,17 @@
 /**
- * @type {import('got').Got}
+ * @typedef {{
+ *  token: string,
+ *  tokenExpiresAt: number
+ * }} GlobalConfig
+ *
+ * @typedef {import('got').Got} Got
+ * @typedef {import('got').Options} GotOptions
+ *
+ * @typedef {import('../../index').MET.MetTranslateOptions} TranslateOptions
+ * @typedef {import('../../index').MET.MetTranslationResult} TranslationResult
  */
+
+/** @type {Got} */
 const got = require('got')
 
 const lang = require('./lang')
@@ -9,9 +20,18 @@ const { userAgent: DEFAULT_USER_AGENT } = require('../config.json')
 const API_AUTH = 'https://edge.microsoft.com/translate/auth'
 const API_TRANSLATE = 'https://api.cognitive.microsofttranslator.com/translate'
 
+/**
+ * @type {GlobalConfig | undefined}
+ */
 let globalConfig
+/**
+ * @type {Promise<GlobalConfig> | undefined}
+ */
 let globalConfigPromise
 
+/**
+ * @param {string} [userAgent]
+ */
 async function fetchGlobalConfig(userAgent) {
   try {
     const authJWT = await got(API_AUTH, {
@@ -37,10 +57,14 @@ function isTokenExpired() {
 }
 
 /**
- * @param {string | string[]} text
- * @param {string} from
- * @param {string | string[]} to
- * @param {object} options
+ * To translate
+ *
+ * @param {string | string[]} text content to be translated
+ * @param {string} [from] source language code
+ * @param {string | string[]} to target language code(s). `en` by default.
+ * @param {TranslateOptions} [options] optional translate options
+ *
+ * @returns {Promise<TranslationResult | undefined>}
  */
 async function translate(text, from, to, options) {
   if (!text || !text.length) {
@@ -72,8 +96,9 @@ async function translate(text, from, to, options) {
 
   options ||= {}
 
-  // skip to fetch the free authorization if the `authenticationHeaders` is provided
-  // you will have to check if the authorization is expired by yourself
+  // Skip to fetch the free authorization if the `authenticationHeaders` is provided
+  // You will have to check if the authorization is expired by yourself
+  // See https://learn.microsoft.com/azure/ai-services/translator/reference/v3-0-reference#authentication
   const authenticationHeaders = options.authenticationHeaders
   if (!authenticationHeaders) {
     if (!globalConfigPromise) {
@@ -104,6 +129,7 @@ async function translate(text, from, to, options) {
         ...Object.entries({
           'api-version': '3.0',
           from,
+          // See https://learn.microsoft.com/azure/ai-services/translator/reference/v3-0-translate#optional-parameters
           ...(options.translateOptions || {})
         }).filter(([_, val]) => val != null && val !== '')
       ]),
