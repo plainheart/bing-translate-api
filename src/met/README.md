@@ -17,9 +17,7 @@ MET.translate('你好，很高兴认识你！', null, 'en').then(res => {
 ```
 
 <details>
-<summary>Translation result:</summary>
-
-Translation result:
+<summary>Translation result</summary>
 
 ```json
 [
@@ -52,7 +50,7 @@ MET.translate('你好，很高兴认识你！', null, ['en', 'ja']).then(res => 
 ```
 
 <details>
-<summary>Translation result:</summary>
+<summary>Translation result</summary>
 
 ```json
 [
@@ -98,7 +96,7 @@ MET.translate(htmlText, null, 'en', {
 ```
 
 <details>
-<summary>Translation result:</summary>
+<summary>Translation result</summary>
 
 ```json
 [
