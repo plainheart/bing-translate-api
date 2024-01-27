@@ -1,21 +1,23 @@
 {
   "name": "bing-translate-api",
-  "version": "3.0.1",
-  "description": "A simple and free API for Bing Translator for Node.js",
+  "version": "4.0.0",
+  "description": "A simple and free API for Bing & Microsoft Translator for Node.js",
   "main": "src/index.js",
   "typings": "index.d.ts",
   "scripts": {
-    "test": "node test/index.js && node test/lang.js",
+    "test": "node test/index.js && node test/lang.js && node test/met.js",
     "gen:config": "node scripts/generate-config.js"
   },
   "keywords": [
     "bing",
+    "microsoft",
     "translator",
     "api",
     "javascript",
     "free",
     "node",
-    "translate"
+    "translate",
+    "azure"
   ],
   "files": [
     "src",

@@ -11,7 +11,7 @@
  * }} GlobalConfig
  *
  * @typedef {import('../index').TranslationResult} TranslationResult
-
+ *
  * @typedef {import('got').Got} Got
  * @typedef {import('got').Options} GotOptions
  * @typedef {import('got').Agents} GotAgents
@@ -237,7 +237,7 @@ async function wrapRequest(request) {
  * @param {string} [userAgent] <optional> the expected user agent header
  * @param {GotAgents} [proxyAgents] <optional> set agents of `got` for proxy
  *
- * @returns {Promise<TranslationResult>}
+ * @returns {Promise<TranslationResult | undefined>}
  */
 async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
   if (!text || !(text = text.trim())) {
@@ -367,5 +367,8 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
 
 module.exports = {
   translate,
-  lang
+  lang,
+  // mount the MET module on the index entry
+  // PENDING: isolate bing module and Microsoft module?
+  MET: require('./met')
 }

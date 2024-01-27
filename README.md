@@ -1,20 +1,26 @@
-<!-- AUTO-GENERATED. SEE scripts/README.tpl.md FOR ORIGINAL TEMPLATE -->
-
 # bing-translate-api
 [![NPM version](https://img.shields.io/npm/v/bing-translate-api.svg?style=flat)](https://www.npmjs.org/package/bing-translate-api)
 [![Auto Test](https://github.com/plainheart/bing-translate-api/actions/workflows/autotest.yml/badge.svg)](https://github.com/plainheart/bing-translate-api/actions/workflows/autotest.yml)
 [![NPM Downloads](https://img.shields.io/npm/dm/bing-translate-api.svg)](https://npmcharts.com/compare/bing-translate-api?minimal=true)
 [![License](https://img.shields.io/npm/l/bing-translate-api.svg)](https://github.com/plainheart/bing-translate-api/blob/master/LICENSE)
 
-A **simple** and **free** API for [Bing Translator](https://bing.com/translator) for Node.js.
+A **simple** and **free** API for [Bing Translator](https://bing.com/translator) and [Microsoft Translator](https://learn.microsoft.com/azure/ai-services/translator/) for Node.js.
 
-## Install 
+## Install
 
 ```
 npm install bing-translate-api
 ```
 
 ## Usage
+
+### Microsoft Translator <sup>🆕</sup>
+
+Added since v4.0.0. More stable and powerful. Both free service and paid service are supported. Feel free to take a try!
+
+Read the [README](./src/met/README.md) for more details.
+
+### Bing Translator
 
 From auto-detected language to English:
 

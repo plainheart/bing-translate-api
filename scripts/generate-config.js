@@ -1,3 +1,6 @@
+/**
+ * @type {import('got').Got}
+ */
 const got = require('got')
 const cheerio = require('cheerio')
 const fs = require('node:fs')
@@ -74,6 +77,28 @@ const DEFAULT_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKi
   )
   console.log()
   console.log('✔️ Generated language map\n', langMap)
+  console.log()
+
+  // Languages supported by MET mode (usually it's the same with bing translator)
+  const { translation: metTranslationLanguages } = await got('https://api.cognitive.microsofttranslator.com/languages', {
+    searchParams: {
+      'api-version': '3.0',
+      scope: 'translation'
+    },
+    headers: {
+      'Accept-Language': 'en-US,en',
+      'User-Agent': DEFAULT_USER_AGENT
+    }
+  }).json()
+  const metLangMap = Object.entries(metTranslationLanguages)
+    .reduce((langCodeMap, [langCode, langItem]) => (langCodeMap[langCode] = langItem.name, langCodeMap), {})
+  fs.writeFileSync(
+    path.resolve(__dirname, '../src/met/lang.json'),
+    JSON.stringify(metLangMap, null, 2),
+    { charset: 'utf-8' }
+  )
+  console.log()
+  console.log('✔️ Generated language map (MET mode)\n', metLangMap)
   console.log()
 
   // update ts definition

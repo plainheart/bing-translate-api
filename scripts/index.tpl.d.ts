@@ -1,4 +1,7 @@
-import type { Agents } from 'got';
+import type {
+  Agents,
+  Options as GotOptions
+} from 'got';
 
 export interface TranslationResult {
   /**
@@ -58,11 +61,62 @@ export declare function translate(
   raw?: boolean,
   userAgent?: string,
   proxyAgents?: Agents
-): Promise<TranslationResult>;
+): Promise<TranslationResult | undefined>;
 
 export declare namespace lang {
   const LANGS: __LANG_MAP__;
   function getLangCode(lang: string): string | undefined;
   function isSupported(lang: string): boolean;
   function isCorrectable(lang: string): boolean;
+}
+
+export declare namespace MET {
+  interface MetTranslateOptions {
+    translateOptions?: Record<string, object>;
+    authenticationHeaders?: Record<string, string>;
+    userAgent?: string;
+    gotOptions?: GotOptions
+  }
+
+  /**
+   * See https://learn.microsoft.com/azure/ai-services/translator/reference/v3-0-translate#response-body for full result structure
+   */
+  interface MetTranslationResult {
+    translations: {
+      text: string;
+      to: string;
+      sentLen?: {
+        srcSentLen: number[];
+        transSentLen: number[];
+      };
+      transliteration?: {
+        script: string;
+        text: string;
+      };
+      alignment?: object;
+    }[];
+    detectedLanguage?: {
+      language: string;
+      score: number;
+    }
+  }
+
+  /**
+   * @param text content to be translated
+   * @param source language code
+   * @param to target language code(s). `en` by default.
+   * @param options optional translate options
+   */
+  declare function translate(
+    text: string | string[],
+    from: string | null | undefined,
+    to: string | string[],
+    options?: MetTranslateOptions
+  ): Promise<MetTranslationResult[] | undefined>;
+
+  namespace lang {
+    const LANGS: __LANG_MAP__;
+    function getLangCode(lang: string): string | undefined;
+    function isSupported(lang: string): boolean;
+  }
 }
