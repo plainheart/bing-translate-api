@@ -143,7 +143,6 @@ export declare namespace lang {
     'ms': 'Malay',
     'ml': 'Malayalam',
     'mt': 'Maltese',
-    'mni': 'Manipuri',
     'mr': 'Marathi',
     'mn-Cyrl': 'Mongolian (Cyrillic)',
     'mn-Mong': 'Mongolian (Traditional)',
