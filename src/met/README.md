@@ -83,7 +83,7 @@ const htmlText = `
   <div class="notranslate">This will not be translated.</div>
   <div>This will be translated.</div>
 `;
-MET.translate(htmlText, null, 'en', {
+MET.translate(htmlText, null, 'zh-Hans', {
   translateOptions: {
     // Explicitly set textType as `html`. Defaults to `plain`.
     textType: 'html'
