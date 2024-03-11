@@ -244,7 +244,7 @@ export declare namespace MET {
    * @param to target language code(s). `en` by default.
    * @param options optional translate options
    */
-  declare function translate(
+  function translate(
     text: string | string[],
     from: string | null | undefined,
     to: string | string[],
