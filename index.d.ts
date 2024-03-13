@@ -240,7 +240,7 @@ export declare namespace MET {
 
   /**
    * @param text content to be translated
-   * @param source language code
+   * @param from source language code
    * @param to target language code(s). `en` by default.
    * @param options optional translate options
    */
