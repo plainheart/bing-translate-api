@@ -314,7 +314,7 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
   )
 
   const translation = body[0].translations[0]
-  const detectedLang = body[0].detectedLanguage
+  const detectedLang = body[0].detectedLanguage || {}
 
   /**
    * @type {TranslationResult}
