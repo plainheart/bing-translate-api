@@ -29,7 +29,7 @@ export interface TranslationResult {
     /**
      * The detected language code of original text
      */
-    from: string;
+    from?: string;
     /**
      * The language code of translated text
      */
@@ -37,7 +37,7 @@ export interface TranslationResult {
     /**
      * The score of language detection
      */
-    score: number;
+    score?: number;
   };
   /**
    * The original response from Bing translator

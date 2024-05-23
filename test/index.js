@@ -1,16 +1,26 @@
 const { translate } = require('../src/index')
 const { maxTextLen, maxCorrectableTextLen, maxEPTTextLen, maxTextLenCN } = require('../src/config.json')
 
+/**
+ * @param {import('..').TranslationResult} res
+ */
 function printRes(res) {
   console.log(res.text, '---->', res.translation, 'fromLang', res.language.from)
   console.log()
 }
 
+/**
+ * @param {import('..').TranslationResult} res
+ */
 function printCorrectRes(res) {
   console.log(res.text, '---->', res.correctedText)
   console.log()
 }
 
+/**
+ * @param {Error} e
+ * @param {boolean} [notExit]
+ */
 function onErr(e, notExit) {
   console.error(e)
   console.log()
