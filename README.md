@@ -124,8 +124,3 @@ MIT &copy; 2021-2024 [plainheart](https://github.com/plainheart).
 ## Thanks
 
 Great thanks to [Bing Translator](https://bing.com/translator) for providing such an excellent translation service.
-
-## Related Projects
-- [Capacitor Bing Translator](https://github.com/sabereen/capacitor-bing-translator) - A fork of this project that works in [Capacitor](https://capacitorjs.com).
-- [bing-translate-api-java](https://github.com/marmot-z/bing-translate-api-java) - Bing translate API implemented in Java.
-- [i18n-translate-generator](https://github.com/victor-heliomar/i18n-translation-generator) - CLI tool that automates the generation of localizations for all languages supported in your project.
