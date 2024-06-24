@@ -96,6 +96,7 @@ export declare namespace lang {
     'doi': 'Dogri',
     'nl': 'Dutch',
     'en': 'English',
+    'en-GB': 'English (United Kingdom)',
     'et': 'Estonian',
     'fo': 'Faroese',
     'fj': 'Fijian',
