@@ -119,7 +119,7 @@ Set [agents](https://github.com/sindresorhus/got/blob/main/documentation/tips.md
 
 ## License
 
-MIT &copy; 2021-2024 [plainheart](https://github.com/plainheart).
+MIT &copy; 2021-2025 [plainheart](https://github.com/plainheart).
 
 ## Thanks
 
