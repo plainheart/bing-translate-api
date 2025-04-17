@@ -41,17 +41,17 @@ const DEFAULT_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKi
   const eptRichTranslateParams = parseRichTranslateParams(eptBody)
 
   const config = {
-    websiteEndpoint: richTranslateParams[1],
+    websiteEndpoint: richTranslateParams[2],
     translateEndpoint: richTranslateParams[0],
-    spellCheckEndpoint: richTranslateParams[29],
+    spellCheckEndpoint: richTranslateParams[26],
     // maxTextLen: richTranslateParams[5],
     // PENDING: hard-coding
     maxTextLen: 1000,
     // PENDING: hard-coding
     maxTextLenCN: 5000,
-    maxCorrectableTextLen: richTranslateParams[26],
-    maxEPTTextLen: eptRichTranslateParams[5],
-    correctableLangs: richTranslateParams[27],
+    maxCorrectableTextLen: richTranslateParams[24],
+    maxEPTTextLen: eptRichTranslateParams[6],
+    correctableLangs: richTranslateParams[25],
     eptLangs: eptLangCodes,
     userAgent: DEFAULT_USER_AGENT
   }
