@@ -142,7 +142,7 @@ function makeRequestURL(isSpellCheck, useEPT) {
         // PENDING: might no rate limit but some languages are not supported for now
         // (See also the `eptLangs` field in src/config.json)
         : '&ref=TThis' +
-          '&edgepdftranslator=1'
+        '&edgepdftranslator=1'
     )
 }
 
@@ -315,6 +315,7 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
 
   const translation = body[0].translations[0]
   const detectedLang = body[0].detectedLanguage || {}
+  const inputTransliteration = body[1]?.inputTransliteration || undefined;
 
   /**
    * @type {TranslationResult}
@@ -327,7 +328,8 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
       from: detectedLang.language,
       to: translation.to,
       score: detectedLang.score
-    }
+    },
+    tranliteration: inputTransliteration
   }
 
   if (correct) {

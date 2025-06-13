@@ -40,6 +40,10 @@ export interface TranslationResult {
     score?: number;
   };
   /**
+   * The transliteration of input text
+   */
+  transliteration?: string;
+  /**
    * The original response from Bing translator
    */
   // TODO fine-grained typings
