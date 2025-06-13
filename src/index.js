@@ -316,6 +316,7 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
   const translation = body[0].translations[0]
   const detectedLang = body[0].detectedLanguage || {}
   const inputTransliteration = body[1]?.inputTransliteration || undefined;
+  const outputTransliteration = body[0].translations[0]?.transliteration || {};
 
   /**
    * @type {TranslationResult}
@@ -329,7 +330,8 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
       to: translation.to,
       score: detectedLang.score
     },
-    transliteration: inputTransliteration
+    inputTransliteration,
+    outputTransliteration
   }
 
   if (correct) {

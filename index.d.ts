@@ -42,7 +42,11 @@ export interface TranslationResult {
   /**
    * The transliteration of input text
    */
-  transliteration?: string;
+  inputTransliteration?: string;
+  /**
+   * The transliteration of output text
+   */
+  outputTransliteration?: { text?: string, script?: string };
   /**
    * The original response from Bing translator
    */
