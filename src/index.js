@@ -329,7 +329,7 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
       to: translation.to,
       score: detectedLang.score
     },
-    tranliteration: inputTransliteration
+    transliteration: inputTransliteration
   }
 
   if (correct) {
