@@ -156,8 +156,7 @@ function makeRequestURL(isSpellCheck, useEPT) {
  *   to?: string,
  *   text: string,
  *   token: string,
- *   key: number,
- *   tryFetchingGenderDebiasedTranslations?: true
+ *   key: number
  * }}
  */
 function makeRequestBody(isSpellCheck, text, fromLang, toLang) {
@@ -170,8 +169,6 @@ function makeRequestBody(isSpellCheck, text, fromLang, toLang) {
   }
   if (!isSpellCheck) {
     toLang && (body.to = toLang)
-
-    body.tryFetchingGenderDebiasedTranslations = true
   }
   return body
 }
@@ -223,7 +220,7 @@ async function wrapRequest(request) {
     throw wrappedErr
   }
 
-  return body
+  return response
 }
 
 /**
@@ -289,6 +286,8 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
   const requestURL = makeRequestURL(false, canUseEPT)
   const requestBody = makeRequestBody(false, text, from, to)
 
+  requestBody.tryFetchingGenderDebiasedTranslations = true
+
   const requestHeaders = {
     'user-agent': userAgent || config.userAgent,
     referer: replaceSubdomain(TRANSLATE_WEBSITE, globalConfig.subdomain)
@@ -302,36 +301,64 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
     methods: ['POST']
   }
 
-  const body = await wrapRequest(
+  let { body, headers } = await wrapRequest(
     got.post(requestURL, {
       headers: requestHeaders,
       // got will set CONTENT_TYPE as `application/x-www-form-urlencoded`
       form: requestBody,
-      responseType: 'json',
+      // result may be HTML string when the translation is gender-debiased
+      responseType: 'text',
       agent: proxyAgents,
       retry: canUseEPT ? 0 : retryConfig
     })
   )
-
-  const translation = body[0].translations[0]
-  const detectedLang = body[0].detectedLanguage || {}
 
   /**
    * @type {TranslationResult}
    */
   const res = {
     text,
-    userLang: from,
-    translation: translation.text,
-    language: {
+    userLang: from
+  }
+
+  if (headers['content-type'].includes('application/json')) {
+    body = JSON.parse(body)
+    const translation = body[0].translations[0]
+    const detectedLang = body[0].detectedLanguage || {}
+    res.translation = translation.text,
+    res.language = {
       from: detectedLang.language,
       to: translation.to,
+      // may not be provided anymore
       score: detectedLang.score
+    }
+  }
+  else if (headers['isgenderdebiasedtranslation']) {
+    requestBody.isGenderDebiasViewPresent = true
+
+    const gdRes = await wrapRequest(
+      got.post(requestURL, {
+        headers: requestHeaders,
+        form: requestBody,
+        responseType: 'json',
+        agent: proxyAgents,
+        retry: canUseEPT ? 0 : retryConfig
+      })
+    )
+    body = gdRes.body
+    res.translation = body.masculineTranslation
+    res.feminineTranslation = body.feminineTranslation
+    res.masculineTranslation = body.masculineTranslation
+    res.language = {
+      from: gdRes.headers['detectedlanguage'],
+      to,
+      // not provided
+      score: void 0
     }
   }
 
   if (correct) {
-    const correctLang = detectedLang.language
+    const correctLang = res.language.from
     const matcher = text.match(/"/g)
     const len = text.length + (matcher && matcher.length || 0)
     // currently, there is a limit of 50 characters for correction service
@@ -341,7 +368,7 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
       const requestURL = makeRequestURL(true)
       const requestBody = makeRequestBody(true, text, correctLang)
 
-      const body = await wrapRequest(
+      const { body } = await wrapRequest(
         got.post(requestURL, {
           headers: requestHeaders,
           form: requestBody,

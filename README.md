@@ -55,8 +55,15 @@ Translation result
     "from": "zh-Hans",
     // score of language detection
     // supported since v1.1.0
+    // (NOTICE: This field may not be provided at present)
     "score": 1
-  }
+  },
+  // feminine translation text (Only be returned when the translation result is gender-debiased)
+  // supported since v4.1.0
+  "feminineTranslation": undefined,
+  // masculine translation text (Only be returned when the translation result is gender-debiased)
+  // supported since v4.1.0
+  "masculineTranslation": undefined
 }
 ```
 

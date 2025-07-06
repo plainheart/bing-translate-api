@@ -15,11 +15,14 @@ export interface TranslationResult {
    */
   userLang: string;
   /**
-   * The translated text
+   * The translated text.
+   * Since `v4.1.0`, when the translation result is gender-debiased, `masculineTranslation` will be used by default.
+   * For feminine, use `feminineTranslation`.
    */
   translation: string;
   /**
-   * The corrected text. This is returned only when the `correct` option is set as `true`
+   * The corrected text. This is returned only when the `correct` option is set as `true`.
+   * @since v1.1.0
    */
   correctedText?: string;
   /**
@@ -35,10 +38,24 @@ export interface TranslationResult {
      */
     to: string;
     /**
-     * The score of language detection
+     * The score of language detection.
+     * (Notice: This field may not be provided at present)
+     * @since v1.1.0
      */
     score?: number;
   };
+  /**
+   * The feminine translation text.
+   * This is returned only when the translation result is gender-debiased.
+   * @since v4.1.0
+   */
+  feminineTranslation?: string;
+  /**
+   * The masculine translation text.
+   * This is returned only when the translation result is gender-debiased.
+   * @since v4.1.0
+   */
+  masculineTranslation?: string;
   /**
    * The original response from Bing translator
    */

@@ -74,3 +74,6 @@ typings/
 # Service worker
 sw.*
 
+*.local
+
+*.local.*

@@ -12,6 +12,22 @@ function printRes(res) {
 /**
  * @param {import('..').TranslationResult} res
  */
+function printGenderDebiasedRes(res) {
+  console.log(
+    res.text, '---->', res.translation,
+    'feminineTranslation:', res.feminineTranslation,
+    'masculineTranslation:', res.masculineTranslation,
+    'fromLang', res.language.from
+  )
+  console.log()
+  if (!res.feminineTranslation || !res.masculineTranslation) {
+    throw new Error('no gender debiased result')
+  }
+}
+
+/**
+ * @param {import('..').TranslationResult} res
+ */
 function printCorrectRes(res) {
   console.log(res.text, '---->', res.correctedText)
   console.log()
@@ -91,3 +107,8 @@ translate(new Array(maxEPTTextLen + 1).fill('0').join(''), null, 'en')
 translate(new Array(maxTextLenCN + 1).fill('0').join(''), null, 'en')
 .then(printRes)
 .catch(e => onErr(e, true))
+
+// en to es (with gender-debiased translation result returned)
+translate('Latest', 'en', 'es')
+.then(printGenderDebiasedRes)
+.catch(onErr)
