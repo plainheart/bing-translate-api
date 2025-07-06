@@ -22,7 +22,9 @@
   "files": [
     "src",
     "test",
-    "index.d.ts"
+    "index.d.ts",
+    "!*.local",
+    "!*.local.*"
   ],
   "author": "plainheart",
   "license": "MIT",
