@@ -1,6 +1,6 @@
 {
   "name": "bing-translate-api",
-  "version": "4.0.2",
+  "version": "4.1.0",
   "description": "A simple and free API for Bing & Microsoft Translator for Node.js",
   "main": "src/index.js",
   "typings": "index.d.ts",
@@ -38,6 +38,6 @@
     "got": "^11.8.6"
   },
   "devDependencies": {
-    "cheerio": "^1.0.0-rc.12"
+    "cheerio": "^1.1.0"
   }
 }
