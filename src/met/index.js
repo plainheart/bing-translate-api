@@ -109,9 +109,9 @@ async function translate(text, from, to, options) {
 
     if (isTokenExpired()) {
       globalConfigPromise = fetchGlobalConfig(options.userAgent)
-
-      await globalConfigPromise
     }
+
+    await globalConfigPromise
   }
 
   const gotOptions = Object.assign({}, options.gotOptions)

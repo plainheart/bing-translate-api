@@ -74,7 +74,7 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
   let subdomain = globalConfig && globalConfig.subdomain
 
   try {
-    const { body, request: { redirects: [redirectUrl] } } = await got(
+    const { body, request: { redirects: [redirectUrl] } } = await got.get(
       replaceSubdomain(TRANSLATE_WEBSITE, subdomain),
       {
         headers: {
@@ -84,7 +84,8 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
         retry: {
           limit: MAX_RETRY_COUNT,
           methods: ['GET']
-        }
+        },
+        http2: true
       }
     )
 
@@ -135,7 +136,8 @@ function makeRequestURL(isSpellCheck, useEPT) {
   const { IG, IID, subdomain } = globalConfig
   return replaceSubdomain(isSpellCheck ? TRANSLATE_API_SPELL_CHECK : TRANSLATE_API, subdomain)
     + '&IG=' + IG
-    + '&IID=' + (IID + (isSpellCheck || useEPT ? '.' + (++globalConfig.count) : ''))
+    + '&IID=' + IID
+    + (isSpellCheck || useEPT ? '&SFX=' + (++globalConfig.count) : '')
     + (
       isSpellCheck || !useEPT
         ? ''
@@ -249,9 +251,9 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
 
   if (isTokenExpired()) {
     globalConfigPromise = fetchGlobalConfig(userAgent, proxyAgents)
-
-    await globalConfigPromise
   }
+
+  await globalConfigPromise
 
   from = from || 'auto-detect'
   to = to || 'en'
@@ -309,7 +311,8 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
       // result may be HTML string when the translation is gender-debiased
       responseType: 'text',
       agent: proxyAgents,
-      retry: canUseEPT ? 0 : retryConfig
+      retry: canUseEPT ? 0 : retryConfig,
+      http2: true
     })
   )
 
@@ -342,7 +345,8 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
         form: requestBody,
         responseType: 'json',
         agent: proxyAgents,
-        retry: canUseEPT ? 0 : retryConfig
+        retry: canUseEPT ? 0 : retryConfig,
+        http2: true
       })
     )
     body = gdRes.body
@@ -365,7 +369,7 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
     // and only parts of languages are supported
     // otherwise, it will return status code 400
     if (len <= config.maxCorrectableTextLen && lang.isCorrectable(correctLang)) {
-      const requestURL = makeRequestURL(true)
+      const requestURL = makeRequestURL(true, canUseEPT)
       const requestBody = makeRequestBody(true, text, correctLang)
 
       const { body } = await wrapRequest(
@@ -374,7 +378,8 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
           form: requestBody,
           responseType: 'json',
           agent: proxyAgents,
-          retry: retryConfig
+          retry: retryConfig,
+          http2: true
         })
       )
 
