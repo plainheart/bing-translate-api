@@ -1,9 +1,4 @@
 /**
- * @typedef {{
- *  token: string,
- *  tokenExpiresAt: number
- * }} GlobalConfig
- *
  * @typedef {import('got').Got} Got
  * @typedef {import('got').Options} GotOptions
  *
@@ -17,43 +12,130 @@ const got = require('got')
 const lang = require('./lang')
 const { userAgent: DEFAULT_USER_AGENT } = require('../config.json')
 
-const API_AUTH = 'https://edge.microsoft.com/translate/auth'
-const API_TRANSLATE = 'https://api.cognitive.microsofttranslator.com/translate'
+// Free Edge endpoint: no auth. See https://www.ankio.net/research/technology/microsoft-edge-translate-api
+const API_EDGE_TRANSLATE = 'https://edge.microsoft.com/translate/translatetext'
+// Paid Azure Translator (only when authenticationHeaders is provided)
+const API_AZURE_TRANSLATE = 'https://api.cognitive.microsofttranslator.com/translate'
+
+// Elements with class containing "notranslate" must stay untouched in HTML mode.
+const NOTRANSLATE_RE = /<([a-zA-Z][\w:-]*)((?:\s[^>]*)?\sclass\s*=\s*(["'])(?:(?!\3).)*\bnotranslate\b(?:(?!\3).)*\3[^>]*)>([\s\S]*?)<\/\1\s*>/gi
+const PLACEHOLDER_RE = /\[\[NT(\d+)\]\]/g
 
 /**
- * @type {GlobalConfig | undefined}
+ * @param {string} html
+ * @returns {{ masked: string, parts: string[] }}
  */
-let globalConfig
-/**
- * @type {Promise<GlobalConfig> | undefined}
- */
-let globalConfigPromise
-
-/**
- * @param {string} [userAgent]
- */
-async function fetchGlobalConfig(userAgent) {
-  try {
-    const authJWT = await got(API_AUTH, {
-      headers: {
-        'User-Agent': userAgent || DEFAULT_USER_AGENT
-      }
-    }).text()
-    const jwtPayload = JSON.parse(Buffer.from(authJWT.split('.')[1], 'base64').toString('utf-8'))
-    globalConfig = {
-      token: authJWT,
-      // valid in 10 minutes
-      tokenExpiresAt: jwtPayload.exp * 1e3
-    }
-  } catch (e) {
-    console.error('failed to fetch auth token')
-    throw e
-  }
+function maskNoTranslate(html) {
+  const parts = []
+  const masked = html.replace(NOTRANSLATE_RE, (match) => {
+    const key = `[[NT${parts.length}]]`
+    parts.push(match)
+    return key
+  })
+  return { masked, parts }
 }
 
-function isTokenExpired() {
-  // consider the token as expired if the rest time is less than 1 minute
-  return !globalConfig || (globalConfig.tokenExpiresAt || 0) - Date.now() < 6e4
+/**
+ * @param {string} html
+ * @param {string[]} parts
+ */
+function unmaskNoTranslate(html, parts) {
+  return html.replace(PLACEHOLDER_RE, (_, i) => parts[Number(i)])
+}
+
+/**
+ * @param {string[]} text
+ * @param {string | undefined} from
+ * @param {string[]} to
+ * @param {TranslateOptions} options
+ * @returns {Promise<TranslationResult[]>}
+ */
+async function translateViaEdge(text, from, to, options) {
+  const gotOptions = Object.assign({}, options.gotOptions)
+  const gotHeaders = gotOptions.headers || {}
+  delete gotOptions.headers
+
+  const isHtml = options.translateOptions && options.translateOptions.textType === 'html'
+  const masks = isHtml ? text.map(maskNoTranslate) : null
+  const payload = masks ? masks.map(m => m.masked) : text
+
+  const headers = {
+    'User-Agent': options.userAgent || DEFAULT_USER_AGENT,
+    'Content-Type': 'application/json',
+    ...gotHeaders
+  }
+
+  const bodies = await Promise.all(to.map(toLang =>
+    got.post(API_EDGE_TRANSLATE, {
+      searchParams: new URLSearchParams({
+        // empty from => auto-detect
+        from: from || '',
+        to: toLang,
+        isEnterpriseClient: 'false'
+      }),
+      json: payload,
+      headers,
+      responseType: 'json',
+      ...gotOptions
+    }).then(res => res.body)
+  ))
+
+  /** @type {TranslationResult[]} */
+  let result
+  if (bodies.length === 1) {
+    result = bodies[0]
+  } else {
+    // Merge multi-target results into previous MET shape.
+    result = bodies[0].map((item, i) => ({
+      ...item,
+      translations: bodies.flatMap(body => body[i].translations)
+    }))
+  }
+
+  if (masks) {
+    for (let i = 0; i < result.length; i++) {
+      const parts = masks[i].parts
+      for (const tr of result[i].translations) {
+        tr.text = unmaskNoTranslate(tr.text, parts)
+      }
+    }
+  }
+
+  return result
+}
+
+/**
+ * @param {string[]} text
+ * @param {string | undefined} from
+ * @param {string[]} to
+ * @param {TranslateOptions} options
+ * @returns {Promise<TranslationResult[]>}
+ */
+async function translateViaAzure(text, from, to, options) {
+  const gotOptions = Object.assign({}, options.gotOptions)
+  const gotHeaders = gotOptions.headers || {}
+  delete gotOptions.headers
+
+  const { body } = await got.post(API_AZURE_TRANSLATE, {
+    searchParams: new URLSearchParams([
+      ...to.map(toLang => ['to', toLang]),
+      ...Object.entries({
+        'api-version': '3.0',
+        from,
+        // See https://learn.microsoft.com/azure/ai-services/translator/reference/v3-0-translate#optional-parameters
+        ...(options.translateOptions || {})
+      }).filter(([_, val]) => val != null && val !== '')
+    ]),
+    json: text.map(txt => ({ Text: txt })),
+    headers: {
+      'User-Agent': options.userAgent || DEFAULT_USER_AGENT,
+      ...(options.authenticationHeaders || {}),
+      ...gotHeaders
+    },
+    responseType: 'json',
+    ...gotOptions
+  })
+  return body
 }
 
 /**
@@ -64,7 +146,7 @@ function isTokenExpired() {
  * @param {string | string[]} to target language code(s). `en` by default.
  * @param {TranslateOptions} [options] optional translate options
  *
- * @returns {Promise<TranslationResult | undefined>}
+ * @returns {Promise<TranslationResult[] | undefined>}
  */
 async function translate(text, from, to, options) {
   if (!text || !text.length) {
@@ -80,7 +162,6 @@ async function translate(text, from, to, options) {
   to = to.map(toLang => lang.getLangCode(toLang) || 'en')
   to.length || (to = ['en'])
 
-  // check if the source and target languages are supported
   const fromSupported = !from || lang.isSupported(from)
   const toSupported = to.every(lang.isSupported)
 
@@ -91,66 +172,22 @@ async function translate(text, from, to, options) {
     }`)
   }
 
-  // The MET mode no longer pre-checks the text length for simplicity
   Array.isArray(text) || (text = [text])
-
   options ||= {}
 
-  // Skip to fetch the free authorization if the `authenticationHeaders` is provided
-  // You will have to check if the authorization is expired by yourself
-  // See https://learn.microsoft.com/azure/ai-services/translator/reference/v3-0-reference#authentication
-  const authenticationHeaders = options.authenticationHeaders
-  if (!authenticationHeaders) {
-    if (!globalConfigPromise) {
-      globalConfigPromise = fetchGlobalConfig(options.userAgent)
-    }
-
-    await globalConfigPromise
-
-    if (isTokenExpired()) {
-      globalConfigPromise = fetchGlobalConfig(options.userAgent)
-    }
-
-    await globalConfigPromise
-  }
-
-  const gotOptions = Object.assign({}, options.gotOptions)
-
-  // for customized headers
-  const gotHeaders = gotOptions.headers || {}
-  delete gotOptions.headers
-
-  const requestPayload = text.map(txt => ({ Text: txt }))
-
   try {
-    const { body } = await got.post(API_TRANSLATE, {
-      searchParams: new URLSearchParams([
-        ...to.map(toLang => ['to', toLang]),
-        ...Object.entries({
-          'api-version': '3.0',
-          from,
-          // See https://learn.microsoft.com/azure/ai-services/translator/reference/v3-0-translate#optional-parameters
-          ...(options.translateOptions || {})
-        }).filter(([_, val]) => val != null && val !== '')
-      ]),
-      json: requestPayload,
-      headers: {
-        'User-Agent': DEFAULT_USER_AGENT,
-        Authorization: authenticationHeaders ? void 0 : 'Bearer ' + globalConfig.token,
-        ...(authenticationHeaders || {}),
-        ...gotHeaders
-      },
-      responseType: 'json',
-      // the customized `got` options
-      ...gotOptions
-    })
-    return body
+    // Paid Azure path keeps Cognitive API + caller-supplied auth.
+    // Free path uses Edge translatetext (no token).
+    if (options.authenticationHeaders) {
+      return await translateViaAzure(text, from, to, options)
+    }
+    return await translateViaEdge(text, from, to, options)
   } catch (e) {
     let errMsg
     if (e instanceof got.RequestError) {
       const response = e.response
-      const responseBody = JSON.stringify(response.body, null, 2)
-      errMsg = ` with a status code: ${response.statusCode} (${response.statusMessage})\n${responseBody}\n`
+      const responseBody = JSON.stringify(response && response.body, null, 2)
+      errMsg = ` with a status code: ${response && response.statusCode} (${response && response.statusMessage})\n${responseBody}\n`
     } else {
       errMsg = `: ${e.message}`
     }
