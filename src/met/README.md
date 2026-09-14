@@ -143,7 +143,7 @@ MET.translate('你好，很高兴认识你！', null, 'en', {
   authenticationHeaders: {
     // Use private subscription key
     'Ocp-Apim-Subscription-Key': 'YOUR KEY',
-    // Or use a JWT token
+    // Or use a JWT token (This authentication header has been DEPRECATED)
     'Authorization': 'YOUR TOKEN'
   }
 }).then(res => {

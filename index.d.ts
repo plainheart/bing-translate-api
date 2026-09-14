@@ -273,7 +273,14 @@ export declare namespace lang {
 export declare namespace MET {
   interface MetTranslateOptions {
     translateOptions?: Record<string, object>;
-    authenticationHeaders?: Record<string, string>;
+    authenticationHeaders?: Record<string, string> & {
+      'Ocp-Apim-Subscription-Key'?: string,
+      'Ocp-Apim-Subscription-Region'?: string,
+      /**
+       * @deprecated JWT authentication header has been deprecated
+       */
+      'Authorization'?: string
+    };
     userAgent?: string;
     gotOptions?: GotOptions
   }
