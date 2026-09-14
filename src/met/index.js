@@ -1,9 +1,7 @@
 /**
- * @typedef {import('got').Got} Got
- * @typedef {import('got').Options} GotOptions
+ * @import {Got, CancelableRequest, Response} from 'got
  *
- * @typedef {import('../../index').MET.MetTranslateOptions} TranslateOptions
- * @typedef {import('../../index').MET.MetTranslationResult} TranslationResult
+ * @import {MET} from '../../index'
  */
 
 /** @type {Got} */
@@ -12,20 +10,22 @@ const got = require('got')
 const lang = require('./lang')
 const { userAgent: DEFAULT_USER_AGENT } = require('../config.json')
 
-// Free Edge endpoint: no auth. See https://www.ankio.net/research/technology/microsoft-edge-translate-api
+// Free Edge endpoint: no auth
 const API_EDGE_TRANSLATE = 'https://edge.microsoft.com/translate/translatetext'
-// Paid Azure Translator (only when authenticationHeaders is provided)
+// Paid Azure Translator (only when `authenticationHeaders` is provided)
 const API_AZURE_TRANSLATE = 'https://api.cognitive.microsofttranslator.com/translate'
 
-// Elements with class containing "notranslate" must stay untouched in HTML mode.
+// Free Edge endpoint does not support `class="notranslate"` currently, mask them locally via regexp
+// Elements with `class` containing `"notranslate"` must stay untouched in HTML mode.
 const NOTRANSLATE_RE = /<([a-zA-Z][\w:-]*)((?:\s[^>]*)?\sclass\s*=\s*(["'])(?:(?!\3).)*\bnotranslate\b(?:(?!\3).)*\3[^>]*)>([\s\S]*?)<\/\1\s*>/gi
-const PLACEHOLDER_RE = /\[\[NT(\d+)\]\]/g
+const NOTRANSLATE_PLACEHOLDER_RE = /\[\[NT(\d+)\]\]/g
 
 /**
  * @param {string} html
  * @returns {{ masked: string, parts: string[] }}
  */
 function maskNoTranslate(html) {
+  /** @type {string[]} */
   const parts = []
   const masked = html.replace(NOTRANSLATE_RE, (match) => {
     const key = `[[NT${parts.length}]]`
@@ -40,15 +40,15 @@ function maskNoTranslate(html) {
  * @param {string[]} parts
  */
 function unmaskNoTranslate(html, parts) {
-  return html.replace(PLACEHOLDER_RE, (_, i) => parts[Number(i)])
+  return html.replace(NOTRANSLATE_PLACEHOLDER_RE, (_, i) => parts[Number(i)])
 }
 
 /**
  * @param {string[]} text
- * @param {string | undefined} from
+ * @param {string | null | undefined} from
  * @param {string[]} to
- * @param {TranslateOptions} options
- * @returns {Promise<TranslationResult[]>}
+ * @param {MET.MetTranslateOptions} options
+ * @returns {Promise<MET.MetTranslationResult[]>}
  */
 async function translateViaEdge(text, from, to, options) {
   const gotOptions = Object.assign({}, options.gotOptions)
@@ -59,63 +59,49 @@ async function translateViaEdge(text, from, to, options) {
   const masks = isHtml ? text.map(maskNoTranslate) : null
   const payload = masks ? masks.map(m => m.masked) : text
 
-  const headers = {
-    'User-Agent': options.userAgent || DEFAULT_USER_AGENT,
-    'Content-Type': 'application/json',
-    ...gotHeaders
-  }
-
-  const bodies = await Promise.all(to.map(toLang =>
-    got.post(API_EDGE_TRANSLATE, {
-      searchParams: new URLSearchParams({
-        // empty from => auto-detect
-        from: from || '',
-        to: toLang,
+  /** @type {CancelableRequest<Response<MET.MetTranslationResult[]>>} */
+  const { body: results } = await got.post(API_EDGE_TRANSLATE, {
+    searchParams: new URLSearchParams([
+      ...to.map(toLang => ['to', toLang]),
+      ...Object.entries({
+        from,
         isEnterpriseClient: 'false'
-      }),
-      json: payload,
-      headers,
-      responseType: 'json',
-      ...gotOptions
-    }).then(res => res.body)
-  ))
-
-  /** @type {TranslationResult[]} */
-  let result
-  if (bodies.length === 1) {
-    result = bodies[0]
-  } else {
-    // Merge multi-target results into previous MET shape.
-    result = bodies[0].map((item, i) => ({
-      ...item,
-      translations: bodies.flatMap(body => body[i].translations)
-    }))
-  }
+      }).filter(([_, val]) => val != null && val !== '')
+    ]),
+    json: payload,
+    responseType: 'json',
+    headers: {
+      'User-Agent': options.userAgent || DEFAULT_USER_AGENT,
+      ...gotHeaders
+    },
+    ...gotOptions
+  })
 
   if (masks) {
-    for (let i = 0; i < result.length; i++) {
+    for (let i = 0, len = results.length; i < len; i++) {
       const parts = masks[i].parts
-      for (const tr of result[i].translations) {
+      for (const tr of results[i].translations) {
         tr.text = unmaskNoTranslate(tr.text, parts)
       }
     }
   }
 
-  return result
+  return results
 }
 
 /**
  * @param {string[]} text
- * @param {string | undefined} from
+ * @param {string | null | undefined} from
  * @param {string[]} to
- * @param {TranslateOptions} options
- * @returns {Promise<TranslationResult[]>}
+ * @param {MET.MetTranslateOptions} options
+ * @returns {Promise<MET.MetTranslationResult[]>}
  */
 async function translateViaAzure(text, from, to, options) {
   const gotOptions = Object.assign({}, options.gotOptions)
   const gotHeaders = gotOptions.headers || {}
   delete gotOptions.headers
 
+  /** @type {CancelableRequest<Response<MET.MetTranslationResult[]>>} */
   const { body } = await got.post(API_AZURE_TRANSLATE, {
     searchParams: new URLSearchParams([
       ...to.map(toLang => ['to', toLang]),
@@ -127,12 +113,13 @@ async function translateViaAzure(text, from, to, options) {
       }).filter(([_, val]) => val != null && val !== '')
     ]),
     json: text.map(txt => ({ Text: txt })),
+    responseType: 'json',
     headers: {
       'User-Agent': options.userAgent || DEFAULT_USER_AGENT,
+      // See https://learn.microsoft.com/azure/ai-services/translator/reference/v3-0-reference#authentication
       ...(options.authenticationHeaders || {}),
       ...gotHeaders
     },
-    responseType: 'json',
     ...gotOptions
   })
   return body
@@ -142,11 +129,11 @@ async function translateViaAzure(text, from, to, options) {
  * To translate
  *
  * @param {string | string[]} text content to be translated
- * @param {string} [from] source language code
+ * @param {string | null | undefined} from source language code
  * @param {string | string[]} to target language code(s). `en` by default.
- * @param {TranslateOptions} [options] optional translate options
+ * @param {MET.MetTranslateOptions} [options] optional translate options
  *
- * @returns {Promise<TranslationResult[] | undefined>}
+ * @returns {Promise<MET.MetTranslationResult[] | undefined>}
  */
 async function translate(text, from, to, options) {
   if (!text || !text.length) {
@@ -176,18 +163,25 @@ async function translate(text, from, to, options) {
   options ||= {}
 
   try {
-    // Paid Azure path keeps Cognitive API + caller-supplied auth.
-    // Free path uses Edge translatetext (no token).
-    if (options.authenticationHeaders) {
-      return await translateViaAzure(text, from, to, options)
+    // Paid Azure path uses Cognitive API + caller-supplied auth
+    const { authenticationHeaders } = options
+    for (const authHeaderName in authenticationHeaders) {
+      if (Object.prototype.hasOwnProperty.call(authenticationHeaders, authHeaderName)) {
+        return await translateViaAzure(text, from, to, options)
+      }
     }
+    // Free path uses Edge API (no token)
     return await translateViaEdge(text, from, to, options)
   } catch (e) {
     let errMsg
     if (e instanceof got.RequestError) {
       const response = e.response
-      const responseBody = JSON.stringify(response && response.body, null, 2)
-      errMsg = ` with a status code: ${response && response.statusCode} (${response && response.statusMessage})\n${responseBody}\n`
+      if (response) {
+        const responseBody = JSON.stringify(response.body, null, 2)
+        errMsg = ` with a status code: ${response.statusCode} (${response.statusMessage})\n${responseBody}\n`
+      } else {
+        errMsg = `: no response`
+      }
     } else {
       errMsg = `: ${e.message}`
     }

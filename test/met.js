@@ -4,12 +4,15 @@ const { MET } = require('../src/index')
   console.log()
   console.log('Testing MET mode...')
 
-  const res = await MET.translate(['Hello World!', 'Hi, Java!'], null, 'Chinese (Literary)')
+  const res = await MET.translate(['Hello World!', 'Hi, Java!'], null, ['Chinese (Literary)', 'ja'])
   console.log(JSON.stringify(res, null, 2))
 
   const res2 = await MET.translate(`<div class="notranslate">This will not be translated.</div><div>This will be translated.</div>`, null, 'zh-Hans', {
     translateOptions: {
       textType: 'html'
+    },
+    authenticationHeaders: {
+      // 'Ocp-Apim-Subscription-Key': 'YOUR KEY',
     }
   })
   console.log(JSON.stringify(res2, null, 2))
