@@ -14,11 +14,11 @@ npm install bing-translate-api
 
 ## Usage
 
-### Microsoft Translator <sup>🆕</sup>
+### Microsoft Translator <sup>✨</sup>
 
-Added since v4.0.0. More stable and powerful. Both free service and paid service are supported. Feel free to give it a try!
+Available since `v4.0.0`. More stable and powerful than the Bing Translator, supporting both free and paid tiers.
 
-Read the [README](./src/met/README.md) for more details.
+Check the [README](./src/met/README.md) for more details.
 
 ### Bing Translator
 
