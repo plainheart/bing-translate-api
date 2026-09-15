@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Cache node modules
         id: cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: '**/node_modules'
           key: ${{ runner.os }}-cache-node-modules-${{ hashFiles('**/package-lock.json') }}
@@ -25,6 +25,13 @@ jobs:
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
+
+      - name: Add random delay (Only for scheduled runs)
+        if: github.event_name == 'schedule'
+        run: |
+          DELAY=$((1 + RANDOM % 600))
+          echo "Scheduled run detected. Waiting for $DELAY seconds..."
+          sleep $DELAY
 
       - name: Run tests
         run: npm run test
