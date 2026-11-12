@@ -129,6 +129,25 @@ async function fetchGlobalConfig(userAgent, proxyAgents) {
 }
 
 /**
+ * @param {string?} [userAgent]
+ * @param {GotAgents?} [proxyAgents]
+ *
+ * @returns {Promise<void>}
+ */
+async function ensureGlobalConfig(userAgent, proxyAgents) {
+  if (!globalConfigPromise && isTokenExpired()) {
+    globalConfigPromise = fetchGlobalConfig(userAgent, proxyAgents)
+      .finally(() => {
+        globalConfigPromise = undefined
+      })
+  }
+
+  if (globalConfigPromise) {
+    await globalConfigPromise
+  }
+}
+
+/**
  * @param {boolean} isSpellCheck
  * @param {boolean} useEPT
  */
@@ -243,17 +262,7 @@ async function translate(text, from, to, correct, raw, userAgent, proxyAgents) {
     return
   }
 
-  if (!globalConfigPromise) {
-    globalConfigPromise = fetchGlobalConfig(userAgent, proxyAgents)
-  }
-
-  await globalConfigPromise
-
-  if (isTokenExpired()) {
-    globalConfigPromise = fetchGlobalConfig(userAgent, proxyAgents)
-  }
-
-  await globalConfigPromise
+  await ensureGlobalConfig(userAgent, proxyAgents)
 
   from = from || 'auto-detect'
   to = to || 'en'
