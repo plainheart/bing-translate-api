@@ -1,5 +1,5 @@
 /**
- * @import {Got, CancelableRequest, Response} from 'got
+ * @import {Got, CancelableRequest, Response} from 'got'
  *
  * @import {MET} from '../../index'
  */
